@@ -1,21 +1,339 @@
+/**
+ * PRIMM SQL Learning Tool - Styles
+ * Organized CSS with clear sections and enhanced visual design
+ */
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
     to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
         opacity: 1;
     }
 }
 
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
 .fade-in {
-    animation: fadeIn 2s ease-in-out;
+    animation: fadeIn 0.6s ease-in-out;
 }
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+
+/* ============================================================================
+   Button Styles
+   ============================================================================ */
 
 .btn-pop {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .btn-pop:hover {
-    transform: scale(1.1); 
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2); 
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+
+/* ============================================================================
+   Form Styles
+   ============================================================================ */
+
+textarea.form-control {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+
+/* ============================================================================
+   Code Display
+   ============================================================================ */
+
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 14px;
+    overflow-x: auto;
+}
+
+code {
+    background-color: #f8f9fa;
+    color: #e83e8c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 90%;
+}
+
+
+/* ============================================================================
+   Table Styles
+   ============================================================================ */
+
+.table {
+    margin-top: 20px;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+
+/* ============================================================================
+   Alert Styles
+   ============================================================================ */
+
+.alert {
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+
+/* ============================================================================
+   Section Styles
+   ============================================================================ */
+
+.section-container {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #343a40;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+h3 {
+    color: #495057;
+    margin-top: 20px;
+}
+
+
+/* ============================================================================
+   Feedback Messages
+   ============================================================================ */
+
+.text-success {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+
+/* ============================================================================
+   Loading States
+   ============================================================================ */
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "Loading...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: #007bff;
+}
+
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+}
+
+
+/* ============================================================================
+   Database View Styles
+   ============================================================================ */
+
+.database-schema {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.database-schema h3 {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.schema-table {
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+
+/* ============================================================================
+   Navigation Links
+   ============================================================================ */
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+
+/* ============================================================================
+   Question Sections (Hidden by Default)
+   ============================================================================ */
+
+[id^="section-"] {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/*[id^="section-"]:not([style*="display: block"]):not([style*="display: inline"]) {
+    opacity: 0;
+}*\
+
+/* Hide only sections 2, 3, 4 */
+#section-2, #section-3, #section-4 {
+    display: none;
+}
+
+/* Make sure section-1 is visible */
+#section-1 {
+    display: block !important;
+    opacity: 1 !important;
 }
