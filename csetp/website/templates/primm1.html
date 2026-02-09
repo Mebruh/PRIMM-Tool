@@ -13,7 +13,7 @@
     <div id="section-1">
         <h2>Predict and Run</h2>
         <p>What do you think will happen when the following SQL query is run?</p>
-        <pre>SELECT first_name, last_name, email FROM employees WHERE job_title = "Software engineer";</pre>
+        <pre>SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</pre>
         
         <form id="predict-form">
             <div class="form-check">
@@ -58,7 +58,7 @@
             </div>
     
             <div class="mb-3">
-                <label for="question2" class="form-label">2. What is the role of the <code>WHERE job_title = "Software engineer"</code> condition?</label>
+                <label for="question2" class="form-label">2. What is the role of the <code>WHERE job_title = "Software Engineer"</code> condition?</label>
                 <input type="text" class="form-control" id="question2" name="question2" required>
             </div>
     
@@ -76,9 +76,9 @@
             <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
             <p><strong>Correct Answer:</strong> The <code>SELECT</code> clause specifies which columns should be retrieved.</p>
             <br>
-            <p><strong>Question 2:</strong> What is the role of the <code>WHERE job_title = "Software engineer"</code> condition? </p>
+            <p><strong>Question 2:</strong> What is the role of the <code>WHERE job_title = "Software Engineer"</code> condition? </p>
             <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
-            <p><strong>Correct Answer:</strong> The <code>WHERE</code> clause filters rows where <code>job_title</code> is "Software engineer".</p>
+            <p><strong>Correct Answer:</strong> The <code>WHERE</code> clause filters rows where <code>job_title</code> is "Software Engineer".</p>
             <br>
             <p><strong>Question 3:</strong> How does MySQL determine which rows to return? </p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
@@ -95,7 +95,7 @@
         <p>Change the filter: Select employees who are from the <code>IT</code> department.</p>
     
         <form id="modify-form">
-            <textarea class="form-control" id="modify-query" rows="3">SELECT first_name, last_name, email FROM employees WHERE job_title = "Software engineer";</textarea>
+            <textarea class="form-control" id="modify-query" rows="3">SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</textarea>
             <button type="button" class="btn btn-primary mt-3" onclick="runModifiedQuery()">Run Query</button>
         </form>
     

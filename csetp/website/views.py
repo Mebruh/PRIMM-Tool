@@ -70,7 +70,7 @@ def run_make_query(request):
         try:
             data = json.loads(request.body)
             user_query = data.get("query", "").strip().lower()
-
+            user_query = user_query.replace("employees", "website_employee")
             correct_query = 'select * from website_employee where salary < 80000;'
 
             with connection.cursor() as cursor:
