@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center">Primm Question Set 1</h1>
-    <p class="text-center">This page will contain interactive PRIMM questions for learning SQL basics.</p>
+    <h1 class="text-center">PRIMM Question Set 1</h1>
+    <p class="text-center">Learn SQL basics through interactive PRIMM exercises.</p>
     <p class="text-center">
         Need to review the employee database? 
-        <a href="{% url 'employee-list' %}" class="text-primary" target="_blank">Click here</a>.
+        <a href="{% url 'employee-list' %}" target="_blank">Click here</a>.
     </p>
 
-    <!-- Section 1 Predict and Run -->
-    <div id="section-1">
+    <!-- Section 1: Predict and Run -->
+    <div id="section-1" class="section-container fade-in">
         <h2>Predict and Run</h2>
         <p>What do you think will happen when the following SQL query is run?</p>
         <pre>SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</pre>
@@ -32,19 +33,21 @@
                 <input class="form-check-input" type="radio" name="prediction" value="4" id="option4">
                 <label class="form-check-label" for="option4">It will return an empty result.</label>
             </div>
-            <button type="button" class="btn btn-primary mt-3" onclick="runQuery()">RUN</button>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runPredictQuery('{% url 'run_sql_query' %}')">RUN</button>
         </form>
         
         <div id="query-output" class="mt-4" style="display:none;">
             <h3>Query Result:</h3>
-            <pre id="result-display"></pre>
-            <p id="answer-feedback"></p>
-            <button id="next-section-btn" class="btn btn-success" style="display:none;" onclick="showNextSection()">Next Section</button>
+            <div id="result-display"></div>
+            <div id="answer-feedback"></div>
+            <button id="next-section-btn" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showInvestigateSection()">Next Section</button>
         </div>
     </div>
 
     <!-- Section 2: Investigate -->
-    <div id="section-2" style="display:none;" class="mt-5">
+    <div id="section-2" style="display:none;" class="section-container mt-5 slide-in">
         <h2>Investigate</h2>
         <p class="alert alert-info">
             Have a look at your answer and the correct one. If they are the same, well done! 
@@ -58,255 +61,79 @@
             </div>
     
             <div class="mb-3">
-                <label for="question2" class="form-label">2. What is the role of the <code>WHERE job_title = "Software Engineer"</code> condition?</label>
+                <label for="question2" class="form-label">2. What is the role of the <code>WHERE job_title = "Software engineer"</code> condition?</label>
                 <input type="text" class="form-control" id="question2" name="question2" required>
             </div>
     
             <div class="mb-3">
-                <label for="question3" class="form-label">3. How does MySQL determine which rows to return?</label>
+                <label for="question3" class="form-label">3. How does the database determine which rows to return?</label>
                 <input type="text" class="form-control" id="question3" name="question3" required>
             </div>
     
-            <button type="button" class="btn btn-primary" id="submit-investigate" disabled onclick="submitInvestigate()">Submit</button>
+            <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled 
+                    onclick="submitInvestigateAnswers()">Submit</button>
         </form>
     
         <div id="investigate-results" class="mt-4" style="display:none;">
             <h3>Correct Answers</h3>
-            <p><strong>Question 1:</strong> What does the <code>SELECT</code> clause do? </p>
+            <p><strong>Question 1:</strong> What does the <code>SELECT</code> clause do?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
             <p><strong>Correct Answer:</strong> The <code>SELECT</code> clause specifies which columns should be retrieved.</p>
             <br>
-            <p><strong>Question 2:</strong> What is the role of the <code>WHERE job_title = "Software Engineer"</code> condition? </p>
+            <p><strong>Question 2:</strong> What is the role of the <code>WHERE job_title = "Software engineer"</code> condition?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
-            <p><strong>Correct Answer:</strong> The <code>WHERE</code> clause filters rows where <code>job_title</code> is "Software Engineer".</p>
+            <p><strong>Correct Answer:</strong> The <code>WHERE</code> clause filters rows where <code>job_title</code> is "Software engineer".</p>
             <br>
-            <p><strong>Question 3:</strong> How does MySQL determine which rows to return? </p>
+            <p><strong>Question 3:</strong> How does the database determine which rows to return?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
-            <p><strong>Correct Answer:</strong> MySQL scans the table and returns rows that satisfy the <code>WHERE</code> condition.</p>
+            <p><strong>Correct Answer:</strong> The database scans the table and returns rows that satisfy the <code>WHERE</code> condition.</p>
             <br>
-            <button id="next-section-btn-2" class="btn btn-success mt-3" style="display:none;" onclick="showSection3()">Next Section</button>
+            <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showModifySection()">Next Section</button>
         </div>
     </div>
 
-    <!-- Section 3 Modify-->
-    <div id="section-3" style="display:none;" class="mt-5">
+    <!-- Section 3: Modify -->
+    <div id="section-3" style="display:none;" class="section-container mt-5 slide-in">
         <h2>Modify</h2>
         <p><strong>Now, modify the query in the following way and observe the output:</strong></p>
         <p>Change the filter: Select employees who are from the <code>IT</code> department.</p>
     
         <form id="modify-form">
             <textarea class="form-control" id="modify-query" rows="3">SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</textarea>
-            <button type="button" class="btn btn-primary mt-3" onclick="runModifiedQuery()">Run Query</button>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runModifiedQuery('{% url 'run_modified_query' %}')">Run Query</button>
         </form>
     
         <div id="modify-query-output" class="mt-4" style="display:none;">
             <h3>Query Result:</h3>
-            <pre id="modify-result-display"></pre>
-            <p id="modify-feedback"></p>
-            <button id="next-section-btn-3" class="btn btn-success" style="display:none;" onclick="showSection4()">Next Section</button>
+            <div id="modify-result-display"></div>
+            <div id="modify-feedback"></div>
+            <button id="next-section-btn-3" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showMakeSection()">Next Section</button>
         </div>
     </div>
 
-
-    <!-- Section 4 Make -->
-    <div id="section-4" style="display:none;" class="mt-5">
+    <!-- Section 4: Make -->
+    <div id="section-4" style="display:none;" class="section-container mt-5 slide-in">
         <h2>Make</h2>
         <p><strong>Now, write your own query:</strong></p>
         <p>Select all the employees with a salary less than $80,000.</p>
     
         <form id="make-form">
-            <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..."></textarea>
-            <button type="button" class="btn btn-primary mt-3" onclick="runMakeQuery()">Submit Query</button>
+            <textarea class="form-control" id="make-query" rows="3" 
+                      placeholder="Write your SQL query here..."></textarea>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runMakeQuery('{% url 'run_make_query' %}', '{% url 'home' %}')">Submit Query</button>
         </form>
     
         <div id="make-query-output" class="mt-4" style="display:none;">
-            <p id="make-feedback"></p>
+            <div id="make-feedback"></div>
         </div>
     </div>
-
 </div>
 
-<script>
-function runQuery() {
-    let correctAnswer = "2";  // Correct answer is 'It will return all the software engineers.'
-    let selected = document.querySelector('input[name="prediction"]:checked');
-    
-    if (!selected) {
-        alert("Please select an answer first!");
-        return;
-    }
-    
-    fetch("{% url 'run_sql_query' %}")
-    .then(response => response.json())
-    .then(data => {
-        let resultContainer = document.getElementById("result-display");
-        resultContainer.innerHTML = formatQueryResult(data.result);
-        
-        document.getElementById("query-output").style.display = "block";
-        
-        if (selected.value === correctAnswer) {
-            document.getElementById("answer-feedback").innerHTML = "✅ Correct! Well done.";
-            document.getElementById("next-section-btn").style.display = "inline-block";
-        } else {
-            document.getElementById("answer-feedback").innerHTML = "❌ Incorrect. Have a look at the condition again";
-        }
-    });
-}
-
-function formatQueryResult(results) {
-    if (results.length === 0) {
-        return "<p>No results found.</p>";
-    }
-
-    let table = "<table class='table table-bordered mt-3'><thead><tr><th>First Name</th><th>Last Name</th><th>Email</th><th>Job Title</th></tr></thead><tbody>";
-    
-    results.forEach(row => {
-        table += `<tr><td>${row.first_name}</td><td>${row.last_name}</td><td>${row.email}</td><td>${row.job_title}</td></tr>`;
-    });
-
-    table += "</tbody></table>";
-    return table;
-}
-
-function showNextSection() {
-    document.getElementById("section-2").style.display = "block";
-}
-
-// Section 2
-
-document.addEventListener("input", function() {
-    let inputs = document.querySelectorAll("#investigate-form input");
-    let allFilled = Array.from(inputs).every(input => input.value.trim() !== "");
-    document.getElementById("submit-investigate").disabled = !allFilled;
-});
-
-function submitInvestigate() {
-    document.getElementById("user-answer1").textContent = document.getElementById("question1").value;
-    document.getElementById("user-answer2").textContent = document.getElementById("question2").value;
-    document.getElementById("user-answer3").textContent = document.getElementById("question3").value;
-
-    document.getElementById("investigate-form").style.display = "none";
-    document.getElementById("investigate-results").style.display = "block";
-    document.getElementById("next-section-btn-2").style.display = "inline-block";
-}
-
-function showSection3() {
-    document.getElementById("section-3").style.display = "block";
-}
-
-// Section 3
-
-function runModifiedQuery() {
-    let userQuery = document.getElementById("modify-query").value;
-
-    fetch("{% url 'run_modified_query' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-        },
-        body: JSON.stringify({ query: userQuery })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let resultContainer = document.getElementById("modify-result-display");
-
-        if (data.error) {
-            resultContainer.innerHTML = `<p class='text-danger'>${data.error}</p>`;
-        } else {
-            resultContainer.innerHTML = formatQueryResult(data.result);
-        }
-
-        document.getElementById("modify-query-output").style.display = "block";
-        
-        if (data.correct) {
-            document.getElementById("modify-feedback").innerHTML = "✅ Correct! Well done.";
-            document.getElementById("next-section-btn-3").style.display = "inline-block";
-        } else {
-            document.getElementById("modify-feedback").innerHTML = "❌ Incorrect. Try modifying the query again.";
-        }
-    });
-}
-
-function formatQueryResult(results) {
-    if (results.length === 0) {
-        return "<p>No results found.</p>";
-    }
-
-    let table = "<table class='table table-bordered mt-3'><thead><tr>";
-
-    // Dynamically generate column headers
-    let columns = Object.keys(results[0]);
-    columns.forEach(col => {
-        if (col !== "job_title") { // Remove Job Title Column
-            table += `<th>${col.replace("_", " ").toUpperCase()}</th>`;
-        }
-    });
-
-    table += "</tr></thead><tbody>";
-
-    // Populate table rows
-    results.forEach(row => {
-        table += "<tr>";
-        columns.forEach(col => {
-            if (col !== "job_title") {  // Remove Job Title Column
-                table += `<td>${row[col]}</td>`;
-            }
-        });
-        table += "</tr>";
-    });
-
-    table += "</tbody></table>";
-    return table;
-}
-
-// Function to get CSRF token from cookies (for Django POST requests)
-function getCSRFToken() {
-    let cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        if (cookie.startsWith("csrftoken=")) {
-            return cookie.substring("csrftoken=".length, cookie.length);
-        }
-    }
-    return "";
-}
-
-function showSection4() {
-    document.getElementById("section-4").style.display = "block";
-}
-
-// Section 4
-
-function runMakeQuery() {
-    let userQuery = document.getElementById("make-query").value;
-
-    fetch("{% url 'run_make_query' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-        },
-        body: JSON.stringify({ query: userQuery })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let feedbackContainer = document.getElementById("make-feedback");
-        document.getElementById("make-query-output").style.display = "block";
-
-        if (data.error) {
-            feedbackContainer.innerHTML = `<p class='text-danger'>❌ Error: ${data.error}</p>`;
-        } else if (data.correct) {
-            alert("✅ Well done! You wrote the correct SQL query.");
-            window.location.href = "{% url 'home' %}";  // Redirect to home
-        } else {
-            feedbackContainer.innerHTML = `<p class='text-warning'>⚠️ Hint: ${data.hint}</p>`;
-        }
-    });
-}
-
-
-
-</script>
-
+<!-- Load external JavaScript files -->
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/primm1.js' %}"></script>
 {% endblock %}

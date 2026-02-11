@@ -46,7 +46,11 @@ function runPredictQuery(runQueryUrl) {
  * Navigate to the Investigate section.
  */
 function showInvestigateSection() {
-    showNextSection('section-2');
+    showElement('section-2');
+    const section = document.getElementById('section-2');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 
@@ -90,7 +94,11 @@ function submitInvestigateAnswers() {
  * Navigate to the Modify section.
  */
 function showModifySection() {
-    showNextSection('section-3');
+    showElement('section-3');
+    const section = document.getElementById('section-3');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 
@@ -136,7 +144,11 @@ function runModifiedQuery(modifyQueryUrl) {
  * Navigate to the Make section.
  */
 function showMakeSection() {
-    showNextSection('section-4');
+    showElement('section-4');
+    const section = document.getElementById('section-4');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 
