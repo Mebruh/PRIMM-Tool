@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Primm Question Set 2</h1>
@@ -32,14 +32,14 @@
                 <input class="form-check-input" type="radio" name="prediction" value="4" id="option4">
                 <label class="form-check-label" for="option4">It will return 0.</label>
             </div>
-            <button type="button" class="btn btn-primary mt-3" onclick="runQuery()">RUN</button>
+            <button type="button" class="btn btn-primary btn-pop mt-3" onclick="runPredictQueryAggregate('{% url 'run_sql_query_aggregate' %}')">RUN</button>
         </form>
         
         <div id="query-output" class="mt-4" style="display:none;">
             <h3>Query Result:</h3>
             <pre id="result-display"></pre>
             <p id="answer-feedback"></p>
-            <button id="next-section-btn" class="btn btn-success" style="display:none;" onclick="showNextSection()">Next Section</button>
+            <button id="next-section-btn" class="btn btn-success btn-pop" style="display:none;" onclick="showNextSection('section-1', 'section-2')">Next Section</button>
         </div>
     </div>
 
@@ -67,7 +67,8 @@
                 <input type="text" class="form-control" id="question3" name="question3" required>
             </div>
     
-            <button type="button" class="btn btn-primary" id="submit-investigate" disabled onclick="submitInvestigate()">Submit</button>
+            <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled 
+        onclick="submitInvestigateAnswers()">Submit</button>
         </form>
     
         <div id="investigate-results" class="mt-4" style="display:none;">
@@ -84,7 +85,7 @@
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
             <p><strong>Correct Answer:</strong> <code>SUM()</code> adds up all numeric values in a column.</p>
             <br>
-            <button id="next-section-btn-2" class="btn btn-success mt-3" style="display:none;" onclick="showSection3()">Next Section</button>
+            <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" onclick="showNextSection('section-2', 'section-3')">Next Section</button>
         </div>
     </div>
 
@@ -96,14 +97,15 @@
     
         <form id="modify-form">
             <textarea class="form-control" id="modify-query" rows="3">SELECT COUNT(email) FROM employees WHERE department = "Operations";</textarea>
-            <button type="button" class="btn btn-primary mt-3" onclick="runModifiedQuery()">Run Query</button>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+        onclick="runModifiedQueryAggregate('{% url 'run_modified_query_aggregate' %}')">Run Query</button>
         </form>
     
         <div id="modify-query-output" class="mt-4" style="display:none;">
             <h3>Query Result:</h3>
             <pre id="modify-result-display"></pre>
             <p id="modify-feedback"></p>
-            <button id="next-section-btn-3" class="btn btn-success" style="display:none;" onclick="showSection4()">Next Section</button>
+            <button id="next-section-btn-3" class="btn btn-success btn-pop" style="display:none;" onclick="showNextSection('section-3', 'section-4')">Next Section</button>
         </div>
     </div>
 
@@ -115,7 +117,8 @@
     
         <form id="make-form">
             <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..."></textarea>
-            <button type="button" class="btn btn-primary mt-3" onclick="runMakeQuery()">Submit Query</button>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+        onclick="runMakeQueryAggregate('{% url 'run_make_query_aggregate' %}', '{% url 'home' %}')">Submit Query</button>
         </form>
     
         <div id="make-query-output" class="mt-4" style="display:none;">
@@ -125,143 +128,7 @@
 
 </div>
 
-<script>
-
-// Section 1
-
-function runQuery() {
-    let correctAnswer = "2";  // Correct answer is 'It will return the total number of employees in Operations.'
-    let selected = document.querySelector('input[name="prediction"]:checked');
-    
-    if (!selected) {
-        alert("Please select an answer first!");
-        return;
-    }
-    
-    fetch("{% url 'run_sql_query_aggregate' %}")
-    .then(response => response.json())
-    .then(data => {
-        let resultContainer = document.getElementById("result-display");
-        resultContainer.innerHTML = `<p>${data.result}</p>`;
-        
-        document.getElementById("query-output").style.display = "block";
-        
-        if (selected.value === correctAnswer) {
-            document.getElementById("answer-feedback").innerHTML = "✅ Correct! Well done.";
-            document.getElementById("next-section-btn").style.display = "inline-block";
-        } else {
-            document.getElementById("answer-feedback").innerHTML = "❌ Incorrect. Think about what COUNT() does. Have a look at the number and then look at the database. Do you see a link?";
-        }
-    });
-}
-
-function showNextSection() {
-    document.getElementById("section-2").style.display = "block";
-}
-
-// Section 2 
-document.addEventListener("input", function() {
-    let inputs = document.querySelectorAll("#investigate-form input");
-    let allFilled = Array.from(inputs).every(input => input.value.trim() !== "");
-    document.getElementById("submit-investigate").disabled = !allFilled;
-});
-
-function submitInvestigate() {
-    document.getElementById("user-answer1").textContent = document.getElementById("question1").value;
-    document.getElementById("user-answer2").textContent = document.getElementById("question2").value;
-    document.getElementById("user-answer3").textContent = document.getElementById("question3").value;
-
-    document.getElementById("investigate-form").style.display = "none";
-    document.getElementById("investigate-results").style.display = "block";
-    document.getElementById("next-section-btn-2").style.display = "inline-block";
-}
-
-function showSection3() {
-    document.getElementById("section-3").style.display = "block";
-}
-
-// Section 3 
-function runModifiedQuery() {
-    let userQuery = document.getElementById("modify-query").value;
-
-    fetch("{% url 'run_modified_query_aggregate' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()  // Ensure CSRF token is included
-        },
-        body: JSON.stringify({ query: userQuery })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let resultContainer = document.getElementById("modify-result-display");
-        
-        if (data.error) {
-            resultContainer.innerHTML = `<p class='text-danger'>❌ Error: ${data.error}</p>`;
-        } else {
-            resultContainer.innerHTML = `<p>${data.result}</p>`;
-        }
-
-        document.getElementById("modify-query-output").style.display = "block";
-        
-        if (data.correct) {
-            document.getElementById("modify-feedback").innerHTML = "✅ Correct! Well done.";
-            document.getElementById("next-section-btn-3").style.display = "inline-block";
-        } else {
-            document.getElementById("modify-feedback").innerHTML = "❌ Incorrect. Make sure you're filtering by job title 'Data Scientist'.";
-        }
-    })
-    .catch(error => {
-        console.error("Fetch Error:", error);
-        document.getElementById("modify-result-display").innerHTML = `<p class='text-danger'>❌ Fetch Error: ${error.message}</p>`;
-    });
-}
-
-// Function to get CSRF token
-function getCSRFToken() {
-    let cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        if (cookie.startsWith("csrftoken=")) {
-            return cookie.substring("csrftoken=".length, cookie.length);
-        }
-    }
-    return "";
-}
-
-function showSection4() {
-    document.getElementById("section-4").style.display = "block";
-}
-
-
-// Section 4
-function runMakeQuery() {
-    let userQuery = document.getElementById("make-query").value;
-
-    fetch("{% url 'run_make_query_aggregate' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-        },
-        body: JSON.stringify({ query: userQuery })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let feedbackContainer = document.getElementById("make-feedback");
-        document.getElementById("make-query-output").style.display = "block";
-
-        if (data.error) {
-            feedbackContainer.innerHTML = `<p class='text-danger'>❌ Error: ${data.error}</p>`;
-        } else if (data.correct) {
-            alert("✅ Well done! You wrote the correct SQL query.");
-            window.location.href = "{% url 'home' %}";  // Redirect to home
-        } else {
-            feedbackContainer.innerHTML = `<p class='text-warning'>⚠️ Hint: ${data.hint}</p>`;
-        }
-    });
-}
-
-</script>
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/primm2.js' %}"></script>
 
 {% endblock %}
