@@ -9,12 +9,12 @@ from .models import Employee, Project
 
 # Table name mappings (user-friendly name -> Django table name)
 EMPLOYEE_TABLE_MAPPING = {
-    'website_employee':'employees' 
+    'employees': 'website_employee'
 }
 
 PROJECT_TABLE_MAPPING = {
-    'website_employee':'employees' ,
-    'website_project':'projects' 
+    'employees': 'website_employee',
+    'projects': 'website_project'
 }
 
 
@@ -34,7 +34,7 @@ QUERY_CONFIGS = {
     
     'primm1_make': {
         'table_mapping': EMPLOYEE_TABLE_MAPPING,
-        'expected_query': 'select * from employees where salary < 80000;',
+        'expected_query': 'select * from website_employee where salary < 80000;',
         'hint_keywords': {  
             'salary': "It looks like you're not filtering by salary.",
             '<': "Are you using the correct comparison operator?",
