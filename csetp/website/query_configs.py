@@ -7,14 +7,12 @@ from django.db.models import Sum, F
 from .models import Employee, Project
 
 
-# Table name mappings (user-friendly name -> Django table name)
-EMPLOYEE_TABLE_MAPPING = {
-    'employees': 'website_employee'
-}
+# Table name mappings (This was an old issue with the codebase where the names the users gave the names of the actual databes in the code were dofferent. Fixed now.)
+EMPLOYEE_TABLE_MAPPING = {'employees': 'employees'}
 
 PROJECT_TABLE_MAPPING = {
-    'employees': 'website_employee',
-    'projects': 'website_project'
+    'employees': 'employees',
+    'projects': 'projects'
 }
 
 
@@ -34,7 +32,7 @@ QUERY_CONFIGS = {
     
     'primm1_make': {
         'table_mapping': EMPLOYEE_TABLE_MAPPING,
-        'expected_query': 'select * from website_employee where salary < 80000;',
+        'expected_query': 'select * from employees where salary < 80000;',
         'hint_keywords': {  
             'salary': "It looks like you're not filtering by salary.",
             '<': "Are you using the correct comparison operator?",

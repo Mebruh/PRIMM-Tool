@@ -143,10 +143,10 @@ def run_sql_query_join(request):
     """
     try:
         query = '''
-    SELECT website_employee.first_name, website_employee.last_name, 
-           website_project.project_name
-    FROM website_employee
-    INNER JOIN website_project ON website_employee.id = website_project.employee_id;
+    SELECT employees.first_name, employees.last_name, 
+           projects.project_name
+    FROM employees
+    INNER JOIN projects ON employees.id = projects.employee_id;
 '''
         success, result = QueryExecutor.execute_query(query)
         
