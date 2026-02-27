@@ -10,10 +10,6 @@ from .executor import QueryExecutor
 from .query_configs import QUERY_CONFIGS
 
 
-# ============================================================================
-# Page Views
-# ============================================================================
-
 def home(request):
     """Render the home page."""
     return render(request, "home.html")
