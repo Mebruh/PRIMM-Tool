@@ -133,6 +133,31 @@ INNER JOIN projects ON employees.id = projects.employee_id;</textarea>
     </div>
 </div>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="bi bi-check-circle-fill me-2"></i>Congratulations!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h4 class="mb-3">Well done! You have successfully completed this set of questions.</h4>
+                <p class="lead">Congratulations! You have finished the first 3 question sets.</p>
+                <p>Please check out more question sets below:</p>
+                <a href="{% url 'all-questions' %}" class="btn btn-primary btn-lg mt-3">
+                    View All Questions →
+                </a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="{% static 'js/common.js' %}"></script>
 <script src="{% static 'js/primm3.js' %}"></script>
 

@@ -192,11 +192,23 @@ function displayFeedback(elementId, message, type = 'info') {
 /**
  * Show a success alert modal and redirect after confirmation.
  * @param {string} message - Success message to display
- * @param {string} redirectUrl - URL to redirect to after confirmation
+ */
+function showSuccessModal() {
+    // Show Bootstrap modal
+    const modalElement = document.getElementById('successModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+/**
+ * Legacy function - now just shows modal instead of redirecting.
+ * @param {string} message - Success message (ignored)
+ * @param {string} redirectUrl - Redirect URL (ignored - modal has links instead)
  */
 function showSuccessAndRedirect(message, redirectUrl) {
-    alert(message);
-    window.location.href = redirectUrl;
+    showSuccessModal();
 }
 
 

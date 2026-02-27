@@ -166,10 +166,7 @@ function runMakeQueryJoin(makeQueryUrl, homeUrl) {
             if (data.error) {
                 displayFeedback('make-feedback', `❌ Error: ${data.error}`, 'error');
             } else if (data.correct) {
-                showSuccessAndRedirect(
-                    '✅ Well done! You wrote the correct SQL query.',
-                    homeUrl
-                );
+                showSuccessModal();
             } else {
                 const hint = data.hint || "Try using LEFT JOIN and check for NULL values in the projects table.";
                 displayFeedback('make-feedback', `⚠️ Hint: ${hint}`, 'warning');

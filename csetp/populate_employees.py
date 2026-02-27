@@ -47,6 +47,9 @@ def populate():
 
 
 PROJECTS = [
+    ("Legacy System Upgrade", "2022-03-15", "2022-12-20", "james.jackson@company.com"),
+    ("Website Redesign", "2022-06-01", "2022-11-30", "ava.white@company.com"),
+    ("Database Optimization", "2022-09-10", None, "daniel.harris@company.com"),
     ("AI Research", "2023-01-10", "2023-12-10", "john.smith@company.com"),
     ("Data Analytics", "2023-03-15", None, "emma.johnson@company.com"),
     ("Marketing Campaign", "2023-06-01", None, "david.anderson@company.com"),
