@@ -39,7 +39,7 @@ class SQLValidator:
             return False, "❌ Query is empty. Please enter a valid SQL query."
         
         if not self._check_no_dangerous_keywords():
-            return False, "❌ Unsafe query detected. Only SELECT statements are allowed."
+            return False, "❌ Unsafe query detected. Only SELECT statements are allowed. As you cannot modify the database."
         
         if not self._check_valid_sql_syntax():
             return False, "❌ Invalid SQL syntax. Please check your query."
@@ -148,15 +148,11 @@ class QueryComparator:
         """
         Compare two SQL queries by normalizing whitespace and case.
         
-        Args:
-            user_query (str): User's SQL query
-            expected_query (str): Expected SQL query
-        
-        Returns:
-            bool: True if queries match
         """
         def normalize_query(query):
-            return re.sub(r'\s+', '', query.lower())
+            normalized = re.sub(r'\s+', '', query.lower())
+            normalized = normalized.rstrip(';')
+            return normalized
         
         return normalize_query(user_query) == normalize_query(expected_query)
 

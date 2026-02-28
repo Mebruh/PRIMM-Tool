@@ -34,6 +34,9 @@ QUERY_CONFIGS = {
         'table_mapping': EMPLOYEE_TABLE_MAPPING,
         'expected_query': 'select * from employees where salary < 80000;',
         'hint_keywords': {  
+            'WHERE': "You need a WHERE clause to filter the results.",
+            '80000': "The salary threshold is $80,000.",
+            'FROM employees': "Make sure you're selecting FROM the employees table.",
             'salary': "It looks like you're not filtering by salary.",
             '<': "Are you using the correct comparison operator?",
         }   
@@ -55,9 +58,10 @@ QUERY_CONFIGS = {
             department="Marketing"
         ).aggregate(Sum("salary"))["salary__sum"],
         'hint_keywords': {
-            'sum': "It looks like you're not using SUM().",
+            'sum': "You need to use the SUM() aggregate function to calculate total salaries.",
             'salary': "Are you summing the correct column?",
-            'marketing': "Check if you're filtering by the 'Marketing' department."
+            'marketing': "Check if you're filtering by the 'Marketing' department.",
+            'FROM employees': "Don't forget to specify which table you are using",
         }
     },
     
@@ -85,6 +89,10 @@ QUERY_CONFIGS = {
         ),
         'rename_fields': None,
         'hint_keywords': {
+            'LEFT JOIN': "You need a LEFT JOIN to include employees without projects. INNER JOIN will exclude them.",
+            'JOIN': "This query requires a JOIN to combine the employees and projects tables.",
+            'WHERE': "Don't forget the WHERE clause to filter for employees without projects.",
+            'projects': "Make sure you're joining with the projects table.",
             'IS NULL': "Hint: Make sure you use `WHERE projects.employee_id IS NULL`."
         }
     }
