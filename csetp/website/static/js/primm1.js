@@ -161,22 +161,24 @@ function showMakeSection() {
  * @param {string} makeQueryUrl - URL endpoint to submit custom query
  * @param {string} homeUrl - URL to redirect to on success
  */
-function runMakeQuery(makeQueryUrl, homeUrl) {
+function runMakeQuery(submitUrl) {
     const userQuery = getTextareaValue('make-query');
     
-    submitQuery(makeQueryUrl, userQuery)
+    submitQuery(submitUrl, userQuery)
         .then(data => {
             showElement('make-query-output');
             
             if (data.error) {
-                displayFeedback('make-feedback', `❌ Error: ${data.error}`, 'error');
+                displayFeedback('make-feedback', data.error, 'error');
             } else if (data.correct) {
+                hideElement('make-query-output');
                 showSuccessModal();
             } else {
                 displayFeedback('make-feedback', `⚠️ Hint: ${data.hint}`, 'warning');
             }
         })
         .catch(error => {
+            showElement('make-query-output');
             displayFeedback('make-feedback', `Error: ${error.message}`, 'error');
         });
 }

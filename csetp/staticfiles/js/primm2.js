@@ -165,6 +165,7 @@ function runMakeQueryAggregate(makeQueryUrl, homeUrl) {
             if (data.error) {
                 displayFeedback('make-feedback', `❌ Error: ${data.error}`, 'error');
             } else if (data.correct) {
+                hideElement('make-query-output');
                 showSuccessModal();
             } else {
                 displayFeedback('make-feedback', `⚠️ Hint: ${data.hint}`, 'warning');
