@@ -6,12 +6,8 @@
     <h1 class="text-center">Primm Question Set 3</h1>
     <p class="text-center">This page will contain interactive PRIMM questions focused on SQL JOINs.</p>
     <p class="text-center">
-        Need to review the employee database? 
-        <a href="{% url 'employee-list' %}" class="text-primary" target="_blank">Click here</a>.
-    </p>
-    <p class="text-center">
-        Need to review the projects database? 
-        <a href="{% url 'project-list' %}" class="text-primary" target="_blank">Click here</a>.
+        Need to review the employee and project database tables? 
+        <a href="{% url 'database-view' %}" class="text-primary" target="_blank">Click here</a>.
     </p>
 
     <!-- Section 1: Predict and Run -->
@@ -62,17 +58,17 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
         <form id="investigate-form">
             <div class="mb-3">
                 <label for="question1" class="form-label">1. What does <code>INNER JOIN</code> do in an SQL query?</label>
-                <input type="text" class="form-control" id="question1" name="question1" required>
+                <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question2" class="form-label">2. Why does <code>ON employees.id = projects.employee_id</code> work as a matching condition?</label>
-                <input type="text" class="form-control" id="question2" name="question2" required>
+                <input type="text" class="form-control" id="question2" name="question2" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question3" class="form-label">3. If <code>INNER JOIN</code> is based on intersection in set theory. What do you think <code>LEFT JOIN</code> is based on?</label>
-                <input type="text" class="form-control" id="question3" name="question3" required>
+                <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
             <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled onclick="submitInvestigateAnswers()">Submit</button>
@@ -103,7 +99,7 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
         <p>Change the filter: Show only projects that started after <code>January 1, 2023</code>.</p>
     
         <form id="modify-form">
-            <textarea class="form-control" id="modify-query" rows="3">SELECT employees.first_name, employees.last_name, projects.project_name 
+            <textarea class="form-control" id="modify-query" rows="3" autocomplete="off" spellcheck="false">SELECT employees.first_name, employees.last_name, projects.project_name 
 FROM employees 
 INNER JOIN projects ON employees.id = projects.employee_id;</textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" onclick="runModifiedQueryJoin('{% url 'run_modified_query_join' %}')">Run Query</button>
@@ -123,7 +119,7 @@ INNER JOIN projects ON employees.id = projects.employee_id;</textarea>
         <p><strong>Write an SQL query to list all employees who do <u>not</u> have a project assigned.</strong></p>
     
         <form id="make-form">
-            <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..."></textarea>
+            <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..." autocomplete="off" spellcheck="false"></textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" onclick="runMakeQueryJoin('{% url 'run_make_query_primm3' %}', '{% url 'home' %}')">Submit Query</button>
         </form>
     

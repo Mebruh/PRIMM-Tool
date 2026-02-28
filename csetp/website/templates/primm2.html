@@ -5,8 +5,8 @@
     <h1 class="text-center">Primm Question Set 2</h1>
     <p class="text-center">This page will contain interactive PRIMM questions focused on aggregate functions.</p>
     <p class="text-center">
-        Need to review the employee database? 
-        <a href="{% url 'employee-list' %}" class="text-primary" target="_blank">Click here</a>.
+        Need to review the employee database table? 
+        <a href="{% url 'database-view' %}" class="text-primary" target="_blank">Click here</a>.
     </p>
 
     <!-- Section 1: Predict and Run -->
@@ -54,17 +54,17 @@
         <form id="investigate-form">
             <div class="mb-3">
                 <label for="question1" class="form-label">1. What does the <code>COUNT()</code> function do?</label>
-                <input type="text" class="form-control" id="question1" name="question1" required>
+                <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question2" class="form-label">2. Does it matter if we count emails or another column? Why or why not?</label>
-                <input type="text" class="form-control" id="question2" name="question2" required>
+                <input type="text" class="form-control" id="question2" name="question2" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question3" class="form-label">3. SQL has other aggregate functions. For example, what do you think <code>SUM()</code> does?</label>
-                <input type="text" class="form-control" id="question3" name="question3" required>
+                <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
             <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled 
@@ -96,7 +96,7 @@
         <p>Change the filter: Count the number of employees who are <code>Data Scientists</code>.</p>
     
         <form id="modify-form">
-            <textarea class="form-control" id="modify-query" rows="3">SELECT COUNT(email) FROM employees WHERE department = "Operations";</textarea>
+            <textarea class="form-control" id="modify-query" rows="3" autocomplete="off" spellcheck="false">SELECT COUNT(email) FROM employees WHERE department = "Operations";</textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" 
         onclick="runModifiedQueryAggregate('{% url 'run_modified_query_aggregate' %}')">Run Query</button>
         </form>
@@ -116,7 +116,7 @@
         <p>Select the sum of all salaries for employees in the <code>Marketing</code> department.</p>
     
         <form id="make-form">
-            <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..."></textarea>
+            <textarea class="form-control" id="make-query" rows="3" placeholder="Write your SQL query here..." autocomplete="off" spellcheck="false"></textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" 
         onclick="runMakeQueryAggregate('{% url 'run_make_query_aggregate' %}', '{% url 'home' %}')">Submit Query</button>
         </form>

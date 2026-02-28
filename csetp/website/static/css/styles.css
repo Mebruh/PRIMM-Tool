@@ -137,6 +137,10 @@ code {
     background-color: rgba(0, 123, 255, 0.05);
 }
 
+.table-dark th {
+    color: #ffffff !important;
+}
+
 
 /* ============================================================================
    Alert Styles

@@ -40,16 +40,14 @@ def primm3(request):
     return render(request, "primm3.html")
 
 
-def database_employee(request):
-    """Display the employee database schema."""
+def database_view(request):
+    """Display both employee and project database tables."""
     employees = Employee.objects.all()
-    return render(request, "database.html", {'employees': employees})
-
-
-def database_projects(request):
-    """Display the projects database schema."""
     projects = Project.objects.all()
-    return render(request, "database2.html", {'projects': projects})
+    return render(request, "database.html", {
+        'employees': employees,
+        'projects': projects
+    })
 
 
 # ============================================================================

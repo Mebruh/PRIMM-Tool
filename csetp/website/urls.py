@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name="home"),
     path('primm/', views.primm, name="primm"),
-    path('database/', views.database_employee, name="employee-list"),
+    path('database/', views.database_view, name="database-view"),
     path('all-questions/', views.all_questions, name="all-questions"), 
     path('primm1/', views.primm1, name="primm1"),
     path('primm2/', views.primm2, name="primm2"),
@@ -15,7 +15,6 @@ urlpatterns = [
     path('run-sql-query-aggregate/', views.run_sql_query_aggregate, name="run_sql_query_aggregate"),
     path('run-modified-query-aggregate/', views.run_modified_query_aggregate, name="run_modified_query_aggregate"),
     path('run-make-query-aggregate/', views.run_make_query_aggregate, name="run_make_query_aggregate"),
-    path('database2/', views.database_projects, name="project-list"),
     path('run-sql-query-join/', views.run_sql_query_join, name="run_sql_query_join"),
     path('run-modified-query-join/', views.run_modified_query_join, name="run_modified_query_join"),
     path('run_make_query_primm3/', views.run_make_query_primm3, name="run_make_query_primm3"),

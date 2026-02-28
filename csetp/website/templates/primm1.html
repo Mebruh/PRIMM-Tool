@@ -6,8 +6,8 @@
     <h1 class="text-center">PRIMM Question Set 1</h1>
     <p class="text-center">Learn SQL basics through interactive PRIMM exercises.</p>
     <p class="text-center">
-        Need to review the employee database? 
-        <a href="{% url 'employee-list' %}" target="_blank">Click here</a>.
+        Need to review the employee database table? 
+        <a href="{% url 'database-view' %}" target="_blank">Click here</a>.
     </p>
 
     <!-- Section 1: Predict and Run -->
@@ -57,17 +57,17 @@
         <form id="investigate-form">
             <div class="mb-3">
                 <label for="question1" class="form-label">1. What does the <code>SELECT</code> clause do?</label>
-                <input type="text" class="form-control" id="question1" name="question1" required>
+                <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question2" class="form-label">2. What is the role of the <code>WHERE job_title = "Software engineer"</code> condition?</label>
-                <input type="text" class="form-control" id="question2" name="question2" required>
+                <input type="text" class="form-control" id="question2" name="question2" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
                 <label for="question3" class="form-label">3. How does the database determine which rows to return?</label>
-                <input type="text" class="form-control" id="question3" name="question3" required>
+                <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
             <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled 
@@ -100,7 +100,7 @@
         <p>Change the filter: Select employees who are from the <code>IT</code> department.</p>
     
         <form id="modify-form">
-            <textarea class="form-control" id="modify-query" rows="3">SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</textarea>
+            <textarea class="form-control" id="modify-query" rows="3" autocomplete="off" spellcheck="false" >SELECT first_name, last_name, email FROM employees WHERE job_title = "Software Engineer";</textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" 
                     onclick="runModifiedQuery('{% url 'run_modified_query' %}')">Run Query</button>
         </form>
@@ -122,7 +122,7 @@
     
         <form id="make-form">
             <textarea class="form-control" id="make-query" rows="3" 
-                      placeholder="Write your SQL query here..."></textarea>
+                      placeholder="Write your SQL query here..." autocomplete="off" spellcheck="false"> </textarea>
             <button type="button" class="btn btn-primary btn-pop mt-3" 
                     onclick="runMakeQuery('{% url 'run_make_query' %}', '{% url 'home' %}')">Submit Query</button>
         </form>
