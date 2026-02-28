@@ -86,7 +86,7 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
             <br>
             <p><strong>Question 3:</strong> If <code>INNER JOIN</code> is based on intersection in set theory. What do you think <code>LEFT JOIN</code> is based on?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
-            <p><strong>Correct Answer:</strong> <code>LEFT JOIN</code> is based on the **left set with intersection**. It includes all elements of the left table, keeping unmatched ones as NULL.</p>
+            <p><strong>Correct Answer:</strong> <code>LEFT JOIN</code> is similar to a union that includes the entire left set plus the intersection. It returns all rows from the left table and matching rows from the right table, with NULL for unmatched values.</p>
     
             <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" onclick="showNextSection('section-2', 'section-3')">Next Section</button>
         </div>
