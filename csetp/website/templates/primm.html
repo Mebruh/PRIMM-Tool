@@ -1,76 +1,66 @@
-{% extends "base.html" %} 
+{% extends 'base.html' %}
+
 {% block content %}
-<style>
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .fade-in-heading {
-    animation: fadeIn 1.5s ease-in-out forwards;
-    text-align: center;
-  }
-
-  .primm-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 100px;
-  }
-
-  .primm-tile {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    width: 18%;
-    min-width: 180px;
-    text-align: center;
-    opacity: 0;
-    animation: fadeIn 1s ease-in-out forwards;
-  }
-
-  .fade-in-1 { animation-delay: 0.5s; }
-  .fade-in-2 { animation-delay: 1s; }
-  .fade-in-3 { animation-delay: 1.5s; }
-  .fade-in-4 { animation-delay: 2s; }
-  .fade-in-5 { animation-delay: 2.5s; }
-</style>
-
-<div class="container">
-  <h1 class="mt-4 fade-in-heading">PRIMM: Predict, Run, Investigate, Modify, Make</h1>
-
-  <div class="primm-container">
-    <div class="primm-tile fade-in-1">
-      <h2>Predict</h2>
-      <p>Analyse and anticipate what a given piece of code will do before running it.</p>
-  </div>
-
-    <div class="primm-tile fade-in-2">
-      <h2>Run</h2>
-      <p>Run the code in your environment and check the output.</p>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">How Does This Tool Work?</h1>
+        <p class="lead text-muted">Understanding the PRIMM Learning Methodology</p>
     </div>
-
-    <div class="primm-tile fade-in-3">
-      <h2>Investigate</h2>
-      <p>Explore the code's structure and behavior to understand how it works.</p>
+    <div class="section-container mb-5">
+        <p class="lead">
+            This tool uses the PRIMM teaching methodology to help you build a deep understanding of SQL.
+        </p>
+        <p class="lead">
+            <strong>PRIMM</strong> stands for: Predict, Run, Investigate, Modify, Make.
+        </p>
+        
     </div>
-
-    <div class="primm-tile fade-in-4">
-      <h2>Modify</h2>
-      <p>Make small changes to the code to test their understanding and see its effects.</p>
+    <div class="section-container mb-4">
+        <h3 class="text-primary mb-3">
+            <i class="bi bi-1-circle-fill me-2"></i>Predict and Run
+        </h3>
+        <p>
+            You'll see an SQL statement and need to <strong>predict what it will do</strong> before running it. 
+            Choose from multiple-choice options based on what you think the query will return, then click the 
+            <strong>RUN</strong> button to execute the query and see the actual results. This helps you develop 
+            intuition about how SQL works.
+        </p>
     </div>
-
-    <div class="primm-tile fade-in-5">
-      <h2>Make</h2>
-      <p>Create your own programs based on what you have learned.</p>
+    <div class="section-container mb-4">
+        <h3 class="text-primary mb-3">
+            <i class="bi bi-2-circle-fill me-2"></i>Investigate
+        </h3>
+        <p>
+            Answer questions about the SQL statement from the Predict and Run section. These questions help you 
+            understand the key concepts like why the query works the way it does, what each clause 
+            means, and how the database processes the statement. This deepens your comprehension of SQL syntax and logic.
+        </p>
     </div>
-  </div>
+    <div class="section-container mb-4">
+        <h3 class="text-primary mb-3">
+            <i class="bi bi-3-circle-fill me-2"></i>Modify
+        </h3>
+        <p>
+            You'll receive a task asking you to find specific information in the database, along with a 
+            partially correct SQL statement. Your job is to <strong>modify the query</strong> 
+            to make it fully correct and retrieve the requested data. This helps you practice adapting existing 
+            SQL code to new requirements.
+        </p>
+    </div>
+    <div class="section-container mb-4">
+        <h3 class="text-primary mb-3">
+            <i class="bi bi-4-circle-fill me-2"></i>Make
+        </h3>
+        <p>
+            The final challenge: you'll be given a task and must write your own SQL query from scratch. 
+            This is where you apply everything you've learned to create a complete, working query independently. 
+            You'll receive helpful hints if your query isn't quite right.
+        </p>
+    </div>
+    <div class="section-container text-center mt-5">
+        <h4 class="mb-4">Ready to start learning SQL?</h4>
+        <a href="{% url 'all-questions' %}" class="btn btn-success btn-lg btn-pop me-3">Start Learning</a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg">Back to Home</a>
+    </div>
 </div>
 {% endblock %}

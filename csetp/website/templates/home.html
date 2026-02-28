@@ -2,10 +2,15 @@
 
 {% block content %}
 <div class="container text-center mt-5">
-    <div class="p-5 mb-4 bg-light rounded-3 fade-in">
-        <h1 class="display-4">Welcome to SQL Questions</h1>
-        <p class="lead">Learn SQL! Explore a variety of SQL questions to test and improve your database skills.</p>
-        <a href="{% url 'all-questions' %}" class="btn btn-primary btn-lg btn-pop">Explore Questions</a>
+    <div class="p-5 mb-4 rounded-3 fade-in" style="background-color: #e8ecef;">
+        <h1 class="display-4">Welcome to the PRIMM SQL Learning Tool</h1>
+        <p class="lead">An interactive learning tool that uses the PRIMM methodology to teach SQL fundamentals through guided practice.</p>
+        <p class="text-muted">Interactive exercises guide you from understanding basic queries to writing your own SQL statements.</p>
+ 
+        <div class="mt-4">
+            <a href="{% url 'primm' %}" class="btn btn-outline-primary btn-lg btn-pop me-3">How Does This Tool Work?</a>
+            <a href="{% url 'all-questions' %}" class="btn btn-primary btn-lg btn-pop">Get Started</a>
+        </div>
     </div>
 </div>
 {% endblock %}
