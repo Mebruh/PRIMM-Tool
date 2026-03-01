@@ -1,21 +1,127 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center">All Questions</h1>
-    <ul class="list-group mt-4">
-        <li class="list-group-item">
-            <a href="{% url 'primm1' %}" class="text-primary">Primm Question Set 1 (Beginner)</a>
-            <p class="text-muted">This question set introduces basic SQL querying, covering `SELECT`, `FROM`, and `WHERE` clauses to filter and retrieve data.</p>
-        </li>
-        <li class="list-group-item">
-            <a href="{% url 'primm2' %}" class="text-primary">Primm Question Set 2 (Medium)</a>
-            <p class="text-muted">This question set is slightly more advanced and focuses on aggregate functions such as `COUNT()`, `SUM()`, and their role in summarizing data.</p>
-        </li>
-        <li class="list-group-item">
-            <a href="{% url 'primm3' %}" class="text-primary">Primm Question Set 3 (Advanced)</a>
-            <p class="text-muted">This advanced question set explores JOINs, including `INNER JOIN` and `LEFT JOIN`, to query data across multiple tables.</p>
-        </li>
-    </ul>
+    <h1 class="text-center mb-4">All Question Sets</h1>
+    
+    <div class="text-center mb-4">
+        <a href="{% url 'add-question-set' %}" class="btn btn-success btn-lg btn-pop">
+            <i class="bi bi-plus-circle me-2"></i>Create Your Own Question Set
+        </a>
+    </div>
+
+    <!-- Built-in Question Sets -->
+    <div class="section-container mb-5">
+        <h2 class="mb-4">Built-in Question Sets</h2>
+        
+        <div class="row">
+            <!-- PRIMM 1 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">PRIMM Question Set 1 (Beginner)</h5>
+                        <p class="card-text">Learn SQL basics with SELECT and WHERE clauses.</p>
+                        <p class="text-muted"><small>Topics: Basic queries, filtering</small></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'primm1' %}" class="btn btn-primary btn-pop w-100">Start</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRIMM 2 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">PRIMM Question Set 2 (Medium)</h5>
+                        <p class="card-text">This question set is slightly more advanced and focuses on aggregate functions such as `COUNT()`, `SUM()`, and their role in summarizing data.</p>
+                        <p class="text-muted"><small>Topics: Aggregate functions</small></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'primm2' %}" class="btn btn-primary btn-pop w-100">Start</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRIMM 3 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">PRIMM Question Set 3 (Advanced)</h5>
+                        <p class="card-text">Practice JOIN operations with multiple tables.</p>
+                        <p class="text-muted"><small>Topics: INNER JOIN, LEFT JOIN</small></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'primm3' %}" class="btn btn-primary btn-pop w-100">Start</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Question Sets -->
+    {% if custom_sets %}
+    <div class="section-container">
+        <h2 class="mb-4">Custom Question Sets</h2>
+        
+        <div class="row">
+            {% for question_set in custom_sets %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ question_set.name }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                Created {{ question_set.created_at|date:"M d, Y" }}
+                                {% if question_set.created_by %}
+                                by {{ question_set.created_by.username }}
+                                {% endif %}
+                            </small>
+                        </p>
+                        <p class="text-muted">
+                            <small>
+                                Tables: 
+                                {% if question_set.uses_employees %}Employees{% endif %}
+                                {% if question_set.uses_employees and question_set.uses_projects %}, {% endif %}
+                                {% if question_set.uses_projects %}Projects{% endif %}
+                            </small>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'custom-question-set' question_set.pk %}" 
+                           class="btn btn-primary btn-pop w-100 mb-2">Start</a>
+                        
+                        <!-- Delete button (admin only) -->
+                        {% if user.is_staff %}
+                        <form method="POST" action="{% url 'delete-question-set' question_set.pk %}" 
+                              onsubmit="return confirm('Are you sure you want to delete this question set?');"
+                              class="d-inline w-100">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Message if no custom sets -->
+    {% if not custom_sets %}
+    <div class="section-container text-center">
+        <h3 class="text-muted mb-3">No Custom Question Sets Yet</h3>
+        <p>Be the first to create a custom question set!</p>
+        <a href="{% url 'add-question-set' %}" class="btn btn-success btn-lg btn-pop">
+            Create Question Set
+        </a>
+    </div>
+    {% endif %}
+
+
 </div>
 {% endblock %}

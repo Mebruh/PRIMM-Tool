@@ -1,8 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import CustomQuestionSet
 
 from .models import Employee, Project
 from .validators import SQLValidator, QueryComparator, QueryHintGenerator
@@ -11,37 +15,33 @@ from .query_configs import QUERY_CONFIGS
 
 
 def home(request):
-    """Render the home page."""
     return render(request, "home.html")
 
 
 def primm(request):
-    """Render the PRIMM explanation page."""
     return render(request, "primm.html")
 
 
 def all_questions(request):
-    """Render the all questions overview page."""
-    return render(request, "all-questions.html")
+    custom_sets = CustomQuestionSet.objects.all()
+    return render(request, "all-questions.html", {
+        'custom_sets': custom_sets
+    })
 
 
 def primm1(request):
-    """Render PRIMM Question Set 1 (Basic SELECT queries)."""
     return render(request, "primm1.html")
 
 
 def primm2(request):
-    """Render PRIMM Question Set 2 (Aggregate functions)."""
     return render(request, "primm2.html")
 
 
 def primm3(request):
-    """Render PRIMM Question Set 3 (JOIN queries)."""
     return render(request, "primm3.html")
 
 
 def database_view(request):
-    """Display both employee and project database tables."""
     employees = Employee.objects.all()
     projects = Project.objects.all()
     return render(request, "database.html", {
@@ -467,3 +467,190 @@ def _execute_make_query_aggregate(request, config):
             return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})
 
     return JsonResponse({"error": "❌ Invalid request method.", "correct": False})
+
+
+def add_question_set(request):
+    """Display form to create a custom question set."""
+    if request.method == "POST":
+        try:
+            # Create new question set from form data
+            question_set = CustomQuestionSet(
+                # Basic info
+                name=request.POST.get('name'),
+                created_by=request.user if request.user.is_authenticated else None,
+                
+                # Table selection
+                uses_employees=request.POST.get('uses_employees') == 'true',
+                uses_projects=request.POST.get('uses_projects') == 'true',
+                
+                # Predict and Run
+                predict_query=request.POST.get('predict_query'),
+                predict_option1=request.POST.get('predict_option1'),
+                predict_option2=request.POST.get('predict_option2'),
+                predict_option3=request.POST.get('predict_option3'),
+                predict_option4=request.POST.get('predict_option4'),
+                predict_correct_answer=int(request.POST.get('predict_correct_answer')),
+                
+                # Investigate
+                investigate_q1=request.POST.get('investigate_q1'),
+                investigate_a1=request.POST.get('investigate_a1'),
+                investigate_q2=request.POST.get('investigate_q2'),
+                investigate_a2=request.POST.get('investigate_a2'),
+                investigate_q3=request.POST.get('investigate_q3'),
+                investigate_a3=request.POST.get('investigate_a3'),
+                
+                # Modify
+                modify_task=request.POST.get('modify_task'),
+                modify_initial_query=request.POST.get('modify_initial_query'),
+                modify_correct_query=request.POST.get('modify_correct_query'),
+                
+                # Make
+                make_task=request.POST.get('make_task'),
+                make_correct_query=request.POST.get('make_correct_query'),
+            )
+            
+            question_set.save()
+            messages.success(request, f'Question set "{question_set.name}" created successfully!')
+            return redirect('all-questions')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating question set: {str(e)}')
+            return render(request, "add_question_set.html")
+    
+    return render(request, "add_question_set.html")
+
+
+def view_custom_question_set(request, pk):
+    """Display a custom question set (similar to primm1/2/3)."""
+    question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+    return render(request, "custom_question_set.html", {
+        'question_set': question_set
+    })
+
+
+@login_required
+def delete_question_set(request, pk):
+    """Delete a custom question set (admin only)."""
+    if not request.user.is_staff:
+        messages.error(request, 'You do not have permission to delete question sets.')
+        return redirect('all-questions')
+    
+    question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+    name = question_set.name
+    question_set.delete()
+    messages.success(request, f'Question set "{name}" deleted successfully.')
+    return redirect('all-questions')
+
+
+@require_http_methods(["GET"])
+def custom_question_run_predict(request, pk):
+    """
+    Execute the predict query for a custom question set.
+    Returns the query results.
+    """
+    try:
+        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+        
+        # Execute the predict query
+        success, result = QueryExecutor.execute_query(question_set.predict_query)
+        
+        if success:
+            return JsonResponse({"result": result})
+        else:
+            return JsonResponse({"error": result}, status=500)
+    
+    except Exception as e:
+        return JsonResponse({"error": f"❌ Query Error: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def custom_question_run_modify(request, pk):
+    """
+    Execute and validate the user's modified query.
+    Compares user's query results with the expected correct query.
+    """
+    try:
+        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+        
+        # Get user's query from request
+        data = json.loads(request.body)
+        user_query = data.get("query", "").strip()
+        
+        if not user_query:
+            return JsonResponse({"error": "❌ Query is empty. Please enter a valid SQL query.", "correct": False})
+        
+        # Validate the query
+        validator = SQLValidator(user_query)
+        is_valid, error_message = validator.validate()
+        
+        if not is_valid:
+            return JsonResponse({"error": error_message, "correct": False})
+        
+        # Execute user's query
+        success, user_result = QueryExecutor.execute_query(user_query)
+        if not success:
+            return JsonResponse({"error": f"❌ SQL Execution Error: {user_result}", "correct": False})
+        
+        # Execute expected query
+        success, expected_result = QueryExecutor.execute_query(question_set.modify_correct_query)
+        if not success:
+            return JsonResponse({"error": f"❌ Expected query failed: {expected_result}", "correct": False})
+        
+        # Compare results
+        is_correct = QueryComparator.compare_results(user_result, expected_result)
+        
+        return JsonResponse({
+            "result": user_result,
+            "correct": is_correct
+        })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "❌ JSON Decode Error: Invalid request format.", "correct": False})
+    except Exception as e:
+        return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def custom_question_run_make(request, pk):
+    """
+    Execute and validate the user's make query.
+    Compares user's query results with the expected correct query.
+    """
+    try:
+        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+        
+        # Get user's query from request
+        data = json.loads(request.body)
+        user_query = data.get("query", "").strip()
+        
+        if not user_query:
+            return JsonResponse({"error": "❌ Query is empty. Please enter a valid SQL query.", "correct": False})
+        
+        # Validate the query
+        validator = SQLValidator(user_query)
+        is_valid, error_message = validator.validate()
+        
+        if not is_valid:
+            return JsonResponse({"error": error_message, "correct": False})
+        
+        # Execute user's query
+        success, user_result = QueryExecutor.execute_query(user_query)
+        if not success:
+            return JsonResponse({"error": f"❌ SQL Execution Error: {user_result}", "correct": False})
+        
+        # Execute expected query
+        success, expected_result = QueryExecutor.execute_query(question_set.make_correct_query)
+        if not success:
+            return JsonResponse({"error": f"❌ Expected query failed: {expected_result}", "correct": False})
+        
+        # Compare results
+        is_correct = QueryComparator.compare_results(user_result, expected_result)
+        
+        return JsonResponse({"correct": is_correct})
+    
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "❌ JSON Decode Error: Invalid request format.", "correct": False})
+    except Exception as e:
+        return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})

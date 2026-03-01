@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">{{ question_set.name }}</h1>
+    <p class="text-center">Custom PRIMM question set.</p>
+    <p class="text-center">
+        Need to review the 
+        {% if question_set.uses_employees and question_set.uses_projects %}
+            employee and project database tables
+        {% elif question_set.uses_employees %}
+            employee database table
+        {% elif question_set.uses_projects %}
+            project database table
+        {% endif %}? 
+        <a href="{% url 'database-view' %}" target="_blank">Click here</a>.
+    </p>
+
+    <!-- Section 1: Predict and Run -->
+    <div id="section-1" class="section-container fade-in">
+        <h2>Predict and Run</h2>
+        <p>What do you think will happen when the following SQL query is run?</p>
+        <pre>{{ question_set.predict_query }}</pre>
+        
+        <form id="predict-form">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="prediction" value="1" id="option1">
+                <label class="form-check-label" for="option1">{{ question_set.predict_option1 }}</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="prediction" value="2" id="option2">
+                <label class="form-check-label" for="option2">{{ question_set.predict_option2 }}</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="prediction" value="3" id="option3">
+                <label class="form-check-label" for="option3">{{ question_set.predict_option3 }}</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="prediction" value="4" id="option4">
+                <label class="form-check-label" for="option4">{{ question_set.predict_option4 }}</label>
+            </div>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runCustomPredictQuery({{ question_set.pk }}, {{ question_set.predict_correct_answer }})">RUN</button>
+        </form>
+        
+        <div id="query-output" class="mt-4" style="display:none;">
+            <h3>Query Result:</h3>
+            <div id="result-display"></div>
+            <div id="answer-feedback"></div>
+            <button id="next-section-btn" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showInvestigateSection()">Next Section</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Investigate -->
+    <div id="section-2" style="display:none;" class="section-container mt-5 slide-in">
+        <h2>Investigate</h2>
+        <p class="alert alert-info">
+            Have a look at your answer and the correct one. If they are the same, well done! 
+            If not, then investigate any differences.
+        </p>
+    
+        <form id="investigate-form">
+            <div class="mb-3">
+                <label for="question1" class="form-label">1. {{ question_set.investigate_q1 }}</label>
+                <input type="text" class="form-control" id="question1" name="question1" required 
+                       autocomplete="off" spellcheck="false">
+            </div>
+    
+            <div class="mb-3">
+                <label for="question2" class="form-label">2. {{ question_set.investigate_q2 }}</label>
+                <input type="text" class="form-control" id="question2" name="question2" required 
+                       autocomplete="off" spellcheck="false">
+            </div>
+    
+            <div class="mb-3">
+                <label for="question3" class="form-label">3. {{ question_set.investigate_q3 }}</label>
+                <input type="text" class="form-control" id="question3" name="question3" required 
+                       autocomplete="off" spellcheck="false">
+            </div>
+    
+            <button type="button" class="btn btn-primary btn-pop" id="submit-investigate" disabled 
+                    onclick="submitInvestigateAnswers()">Submit</button>
+        </form>
+    
+        <div id="investigate-results" class="mt-4" style="display:none;">
+            <h3>Correct Answers</h3>
+            <p><strong>Question 1:</strong> {{ question_set.investigate_q1 }}</p>
+            <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
+            <p><strong>Correct Answer:</strong> {{ question_set.investigate_a1 }}</p>
+            <br>
+            <p><strong>Question 2:</strong> {{ question_set.investigate_q2 }}</p>
+            <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
+            <p><strong>Correct Answer:</strong> {{ question_set.investigate_a2 }}</p>
+            <br>
+            <p><strong>Question 3:</strong> {{ question_set.investigate_q3 }}</p>
+            <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
+            <p><strong>Correct Answer:</strong> {{ question_set.investigate_a3 }}</p>
+            <br>
+            <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showModifySection()">Next Section</button>
+        </div>
+    </div>
+
+    <!-- Section 3: Modify -->
+    <div id="section-3" style="display:none;" class="section-container mt-5 slide-in">
+        <h2>Modify</h2>
+        <p><strong>{{ question_set.modify_task }}</strong></p>
+    
+        <form id="modify-form">
+            <textarea class="form-control" id="modify-query" rows="3" 
+                      autocomplete="off" spellcheck="false">{{ question_set.modify_initial_query }}</textarea>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runCustomModifyQuery({{ question_set.pk }})">Run Query</button>
+        </form>
+    
+        <div id="modify-query-output" class="mt-4" style="display:none;">
+            <h3>Query Result:</h3>
+            <div id="modify-result-display"></div>
+            <div id="modify-feedback"></div>
+            <button id="next-section-btn-3" class="btn btn-success btn-pop mt-3" style="display:none;" 
+                    onclick="showMakeSection()">Next Section</button>
+        </div>
+    </div>
+
+    <!-- Section 4: Make -->
+    <div id="section-4" style="display:none;" class="section-container mt-5 slide-in">
+        <h2>Make</h2>
+        <p><strong>{{ question_set.make_task }}</strong></p>
+    
+        <form id="make-form">
+            <textarea class="form-control" id="make-query" rows="3" 
+                      placeholder="Write your SQL query here..." 
+                      autocomplete="off" spellcheck="false"></textarea>
+            <button type="button" class="btn btn-primary btn-pop mt-3" 
+                    onclick="runCustomMakeQuery({{ question_set.pk }})">Submit Query</button>
+        </form>
+    
+        <div id="make-query-output" class="mt-4" style="display:none;">
+            <div id="make-feedback"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="bi bi-check-circle-fill me-2"></i>Congratulations!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h4 class="mb-3">Well done! You have successfully completed this question set.</h4>
+                <p class="lead">Check out more question sets:</p>
+                <a href="{% url 'all-questions' %}" class="btn btn-primary btn-lg mt-3">
+                    View All Questions →
+                </a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/custom_question.js' %}"></script>
+{% endblock %}

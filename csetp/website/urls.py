@@ -18,4 +18,10 @@ urlpatterns = [
     path('run-sql-query-join/', views.run_sql_query_join, name="run_sql_query_join"),
     path('run-modified-query-join/', views.run_modified_query_join, name="run_modified_query_join"),
     path('run_make_query_primm3/', views.run_make_query_primm3, name="run_make_query_primm3"),
+    path('add-question-set/', views.add_question_set, name='add-question-set'),
+    path('custom-question/<int:pk>/', views.view_custom_question_set, name='custom-question-set'),
+    path('delete-question-set/<int:pk>/', views.delete_question_set, name='delete-question-set'),
+    path('api/custom-question/<int:pk>/run-predict/', views.custom_question_run_predict, name='custom-question-run-predict'),
+    path('api/custom-question/<int:pk>/run-modify/', views.custom_question_run_modify, name='custom-question-run-modify'),
+    path('api/custom-question/<int:pk>/run-make/', views.custom_question_run_make, name='custom-question-run-make'),
 ]

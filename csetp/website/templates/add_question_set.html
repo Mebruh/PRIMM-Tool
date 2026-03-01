@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4">Create Your Own Question Set</h1>
+        <p class="lead text-muted">
+            This page is for creating your own questions based on the available tables in the database.
+        </p>
+        <p>
+            <a href="{% url 'database-view' %}" target="_blank" class="btn btn-outline-primary">
+                View Database Tables
+            </a>
+        </p>
+    </div>
+
+    <form method="POST" id="question-set-form" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <!-- Question Set Name -->
+        <div class="section-container mb-4">
+            <h3>Question Set Name</h3>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" required 
+                       placeholder="e.g., Advanced JOIN Queries">
+                <div class="invalid-feedback">Please provide a name for your question set.</div>
+            </div>
+        </div>
+
+        <!-- Table Selection -->
+        <div class="section-container mb-4">
+            <h3>Select Tables Used</h3>
+            <p class="text-muted">Choose which database tables your questions will use.</p>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="uses_employees" name="uses_employees" value="true" checked>
+                <label class="form-check-label" for="uses_employees">
+                    Employees Table
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="uses_projects" name="uses_projects" value="true">
+                <label class="form-check-label" for="uses_projects">
+                    Projects Table
+                </label>
+            </div>
+        </div>
+
+        <!-- Predict and Run Section -->
+        <div class="section-container mb-4">
+            <h3>1. Predict and Run Section</h3>
+            
+            <div class="mb-3">
+                <label for="predict_query" class="form-label">SQL Query <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="predict_query" name="predict_query" rows="3" required
+                          placeholder="SELECT first_name, last_name FROM employees WHERE..."></textarea>
+                <div class="invalid-feedback">Please provide the SQL query.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Multiple Choice Options <span class="text-danger">*</span></label>
+                <input type="text" class="form-control mb-2" name="predict_option1" required placeholder="Option 1">
+                <input type="text" class="form-control mb-2" name="predict_option2" required placeholder="Option 2">
+                <input type="text" class="form-control mb-2" name="predict_option3" required placeholder="Option 3">
+                <input type="text" class="form-control" name="predict_option4" required placeholder="Option 4">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correct Answer <span class="text-danger">*</span></label>
+                <select class="form-select" name="predict_correct_answer" required>
+                    <option value="">Choose...</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+                <div class="invalid-feedback">Please select the correct answer.</div>
+            </div>
+        </div>
+
+        <!-- Investigate Section -->
+        <div class="section-container mb-4">
+            <h3>2. Investigate Section</h3>
+            
+            <!-- Question 1 -->
+            <div class="mb-3">
+                <label for="investigate_q1" class="form-label">Question 1 <span class="text-danger">*</span></label>
+                <textarea class="form-control mb-2" id="investigate_q1" name="investigate_q1" rows="2" required
+                          placeholder="What does the SELECT clause do?"></textarea>
+                <label for="investigate_a1" class="form-label">Correct Answer 1 <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="investigate_a1" name="investigate_a1" rows="2" required
+                          placeholder="The SELECT clause specifies..."></textarea>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="mb-3">
+                <label for="investigate_q2" class="form-label">Question 2 <span class="text-danger">*</span></label>
+                <textarea class="form-control mb-2" id="investigate_q2" name="investigate_q2" rows="2" required></textarea>
+                <label for="investigate_a2" class="form-label">Correct Answer 2 <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="investigate_a2" name="investigate_a2" rows="2" required></textarea>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="mb-3">
+                <label for="investigate_q3" class="form-label">Question 3 <span class="text-danger">*</span></label>
+                <textarea class="form-control mb-2" id="investigate_q3" name="investigate_q3" rows="2" required></textarea>
+                <label for="investigate_a3" class="form-label">Correct Answer 3 <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="investigate_a3" name="investigate_a3" rows="2" required></textarea>
+            </div>
+        </div>
+
+        <!-- Modify Section -->
+        <div class="section-container mb-4">
+            <h3>3. Modify Section</h3>
+            
+            <div class="mb-3">
+                <label for="modify_task" class="form-label">Task Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="modify_task" name="modify_task" rows="2" required
+                          placeholder="Change the filter: Select employees who are from the IT department."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="modify_initial_query" class="form-label">Semi-Correct Query <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="modify_initial_query" name="modify_initial_query" rows="3" required
+                          placeholder="SELECT first_name FROM employees WHERE department = 'Sales';"></textarea>
+                <small class="text-muted">This is the query students will modify.</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="modify_correct_query" class="form-label">Correct Query <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="modify_correct_query" name="modify_correct_query" rows="3" required
+                          placeholder="SELECT first_name FROM employees WHERE department = 'IT';"></textarea>
+            </div>
+        </div>
+
+        <!-- Make Section -->
+        <div class="section-container mb-4">
+            <h3>4. Make Section</h3>
+            
+            <div class="mb-3">
+                <label for="make_task" class="form-label">Task Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="make_task" name="make_task" rows="2" required
+                          placeholder="Select all employees with a salary less than $80,000."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="make_correct_query" class="form-label">Correct Query <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="make_correct_query" name="make_correct_query" rows="3" required
+                          placeholder="SELECT * FROM employees WHERE salary < 80000;"></textarea>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center mb-5">
+            <button type="submit" class="btn btn-success btn-lg btn-pop">Create Question Set</button>
+            <a href="{% url 'all-questions' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}
