@@ -53,17 +53,17 @@
     
         <form id="investigate-form">
             <div class="mb-3">
-                <label for="question1" class="form-label">1. What does the <code>COUNT()</code> function do?</label>
+                <label for="question1" class="form-label">1. Why do we use <code>COUNT(email)</code> instead of just selecting all the emails from the Operations department?</label>
                 <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
             <div class="mb-3">
-                <label for="question2" class="form-label">2. Does it matter if we count emails or another column? Why or why not?</label>
+                <label for="question2" class="form-label">2. Does it matter if we use <code>COUNT(email)</code> or <code>COUNT(*)</code> in this query? Why or why not?</label>
                 <input type="text" class="form-control" id="question2" name="question2" required autocomplete="new-password" spellcheck="false">
             </div>
     
             <div class="mb-3">
-                <label for="question3" class="form-label">3. SQL has other aggregate functions. For example, what do you think <code>SUM()</code> does?</label>
+                <label for="question3" class="form-label">3. Why do we need the <code>WHERE department = "Operations"</code> clause in this query?</label>
                 <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
@@ -72,18 +72,17 @@
         </form>
     
         <div id="investigate-results" class="mt-4" style="display:none;">
-            <h3>Correct Answers</h3>
-            <p><strong>Question 1:</strong> What does the <code>COUNT()</code> function do? </p>
+            <p><strong>Question 1:</strong> Why do we use <code>COUNT(email)</code> instead of just selecting all the emails from the Operations department?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
-            <p><strong>Correct Answer:</strong> The <code>COUNT()</code> function counts the number of rows that match the condition.</p>
+            <p><strong>Correct Answer:</strong> COUNT() gives us a single number showing how many employees are in Operations. If we used SELECT email, we would get a list of all the individual email addresses, which is less useful when we only want to know 'how many' employees there are.</p>
             <br>
-            <p><strong>Question 2:</strong> Does it matter if we count emails or another column? Why or why not? </p>
+            <p><strong>Question 2:</strong> Does it matter if we use <code>COUNT(email)</code> or <code>COUNT(*)</code> in this query? Why or why not?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
-            <p><strong>Correct Answer:</strong> It does not matter unless you count NULL values. <code>COUNT(column)</code> only counts non-null values, while <code>COUNT(*)</code> counts all rows.</p>
+            <p><strong>Correct Answer:</strong> In this case, both would likely give the same result since employees typically have email addresses. However, COUNT(email) only counts rows where email is not NULL, while COUNT(*) counts all rows in the Operations department regardless of NULL values.</p>
             <br>
-            <p><strong>Question 3:</strong> SQL has other aggregate functions. For example, what do you think <code>SUM()</code> does? </p>
+            <p><strong>Question 3:</strong> Why do we need the <code>WHERE department = "Operations"</code> clause in this query?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
-            <p><strong>Correct Answer:</strong> <code>SUM()</code> adds up all numeric values in a column.</p>
+            <p><strong>Correct Answer:</strong> Without the WHERE clause, COUNT would return the total number of ALL employees in the entire database, not just those in the Operations department. The WHERE clause filters the rows before counting them.</p>
             <br>
             <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" onclick="showNextSection('section-2', 'section-3')">Next Section</button>
         </div>

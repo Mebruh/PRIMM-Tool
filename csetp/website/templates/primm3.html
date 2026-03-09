@@ -57,7 +57,7 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
     
         <form id="investigate-form">
             <div class="mb-3">
-                <label for="question1" class="form-label">1. What does <code>INNER JOIN</code> do in an SQL query?</label>
+                <label for="question1" class="form-label">1. Why do we need to use a JOIN to combine the employees and projects tables in this query?</label>
                 <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
@@ -67,7 +67,7 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
             </div>
     
             <div class="mb-3">
-                <label for="question3" class="form-label">3. If <code>INNER JOIN</code> is based on intersection in set theory. What do you think <code>LEFT JOIN</code> is based on?</label>
+                <label for="question3" class="form-label">3. What happens to employees who do NOT have any projects assigned when using INNER JOIN?</label>
                 <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
@@ -76,17 +76,17 @@ INNER JOIN projects ON employees.id = projects.employee_id;</pre>
     
         <div id="investigate-results" class="mt-4" style="display:none;">
             <h3>Correct Answers</h3>
-            <p><strong>Question 1:</strong> What does <code>INNER JOIN</code> do in an SQL query?</p>
+            <p><strong>Question 1:</strong> Why do we need to use a JOIN to combine the employees and projects tables in this query?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
-            <p><strong>Correct Answer:</strong> The <code>INNER JOIN</code> returns only rows where there is a match in both tables.</p>
+            <p><strong>Correct Answer:</strong> We need a JOIN because employee information (first_name, last_name) is stored in the employees table, while project information (project_name) is stored in the projects table. The JOIN combines data from both tables so we can see which employees are working on which projects.</p>
             <br>
             <p><strong>Question 2:</strong> Why does <code>ON employees.id = projects.employee_id</code> work as a matching condition?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
             <p><strong>Correct Answer:</strong> The <code>employees.id</code> is the primary key in the employees table, and <code>projects.employee_id</code> is the foreign key that references it.</p>
             <br>
-            <p><strong>Question 3:</strong> If <code>INNER JOIN</code> is based on intersection in set theory. What do you think <code>LEFT JOIN</code> is based on?</p>
+            <p><strong>Question 3:</strong> What happens to employees who do NOT have any projects assigned when using INNER JOIN?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
-            <p><strong>Correct Answer:</strong> <code>LEFT JOIN</code> is similar to a union that includes the entire left set plus the intersection. It returns all rows from the left table and matching rows from the right table, with NULL for unmatched values.</p>
+            <p><strong>Correct Answer:</strong> Employees without projects are excluded from the results. INNER JOIN only shows rows where there is a match in BOTH tables, so employees without matching project records don't appear in the output.</p>
     
             <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" onclick="showNextSection('section-2', 'section-3')">Next Section</button>
         </div>

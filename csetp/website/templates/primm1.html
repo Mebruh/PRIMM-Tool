@@ -56,7 +56,7 @@
     
         <form id="investigate-form">
             <div class="mb-3">
-                <label for="question1" class="form-label">1. What does the <code>SELECT</code> clause do?</label>
+                <label for="question1" class="form-label">1. Why do we select only <code>first_name, last_name, email</code> instead of using <code>SELECT *</code>?</label>
                 <input type="text" class="form-control" id="question1" name="question1" required autocomplete="off" spellcheck="false">
             </div>
     
@@ -66,7 +66,7 @@
             </div>
     
             <div class="mb-3">
-                <label for="question3" class="form-label">3. How does the database determine which rows to return?</label>
+                <label for="question3" class="form-label">3. What would happen if we removed the <code>WHERE</code> clause from this query?</label>
                 <input type="text" class="form-control" id="question3" name="question3" required autocomplete="off" spellcheck="false">
             </div>
     
@@ -76,17 +76,17 @@
     
         <div id="investigate-results" class="mt-4" style="display:none;">
             <h3>Correct Answers</h3>
-            <p><strong>Question 1:</strong> What does the <code>SELECT</code> clause do?</p>
+            <p><strong>Question 1:</strong> Why do we select only <code>first_name</code>, <code>last_name</code>, <code>email</code> instead of using <code>SELECT *</code>? </p>
             <p><strong>Your Answer:</strong> <span id="user-answer1"></span></p>
-            <p><strong>Correct Answer:</strong> The <code>SELECT</code> clause specifies which columns should be retrieved.</p>
+            <p><strong>Correct Answer:</strong> We select only the columns we need to make the query more efficient and the results easier to read. Using <code>SELECT *</code> would return all columns including unnecessary data.</p>            <br>
             <br>
             <p><strong>Question 2:</strong> What is the role of the <code>WHERE job_title = "Software engineer"</code> condition?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer2"></span></p>
             <p><strong>Correct Answer:</strong> The <code>WHERE</code> clause filters rows where <code>job_title</code> is "Software engineer".</p>
             <br>
-            <p><strong>Question 3:</strong> How does the database determine which rows to return?</p>
+            <p><strong>Question 3:</strong> What would happen if we removed the <code>WHERE</code> clause from this query?</p>
             <p><strong>Your Answer:</strong> <span id="user-answer3"></span></p>
-            <p><strong>Correct Answer:</strong> The database scans the table and returns rows that satisfy the <code>WHERE</code> condition.</p>
+            <p><strong>Correct Answer:</strong> The query would return the <code>first_name</code>, <code>last_name</code>, and <code>email</code> of ALL employees in the table, not just Software Engineers.</p>
             <br>
             <button id="next-section-btn-2" class="btn btn-success btn-pop mt-3" style="display:none;" 
                     onclick="showModifySection()">Next Section</button>
