@@ -26,6 +26,31 @@ class QueryExecutor:
             cursor.close()
     
     @staticmethod
+    def unique_column_names(description):
+        """
+        Build result column names, making repeated names unique.
+
+        A self-join such as `SELECT c1.cID, c2.cID ...` gives two columns that
+        are both called cID. Results are returned as dictionaries, so the
+        second would overwrite the first. Repeats become "cID (2)", "cID (3)".
+
+        Args:
+            description: cursor.description from an executed query
+
+        Returns:
+            list: Column names, all unique
+        """
+        counts = {}
+        columns = []
+        for col in description:
+            name = col[0]
+            counts[name] = counts.get(name, 0) + 1
+            if counts[name] > 1:
+                name = f"{name} ({counts[name]})"
+            columns.append(name)
+        return columns
+
+    @staticmethod
     def execute_query(query):
         """
         Execute a SELECT query and return results.
@@ -44,7 +69,7 @@ class QueryExecutor:
                 cursor.execute(query)
                 
                 # Get column names from cursor description
-                columns = [col[0] for col in cursor.description]
+                columns = QueryExecutor.unique_column_names(cursor.description)
                 
                 # Fetch all rows and convert to list of dictionaries
                 rows = cursor.fetchall()

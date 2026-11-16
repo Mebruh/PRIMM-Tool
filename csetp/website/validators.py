@@ -142,7 +142,49 @@ class QueryComparator:
         normalized_expected = QueryComparator.normalize_data(expected_result, rename_fields)
         
         return normalized_user == normalized_expected
-    
+
+    @staticmethod
+    def _normalize_value(value):
+        """Normalize one value so equal numbers and text compare equal."""
+        if isinstance(value, bool) or value is None:
+            return str(value).lower()
+        if isinstance(value, (int, float)) or type(value).__name__ == 'Decimal':
+            return repr(float(value))
+        return str(value).strip().lower()
+
+    @staticmethod
+    def compare_rows(user_result, expected_result):
+        """
+        Compare results row by row, ignoring column names.
+
+        Column order matters but names do not, so `SELECT c1.cID AS a, ...`
+        matches `SELECT c1.cID, ...`. Row order does not matter.
+
+        Returns:
+            bool: True if both results contain the same rows
+        """
+        def as_rows(data):
+            return sorted(
+                tuple(QueryComparator._normalize_value(v) for v in record.values())
+                for record in data
+            )
+
+        return as_rows(user_result) == as_rows(expected_result)
+
+    @staticmethod
+    def results_match(user_result, expected_result):
+        """
+        Check whether a student's result matches an expected result.
+
+        Accepts a match either by column name (any column order) or by
+        column position (any column names).
+        """
+        if len(user_result) != len(expected_result):
+            return False
+        if QueryComparator.compare_results(user_result, expected_result):
+            return True
+        return QueryComparator.compare_rows(user_result, expected_result)
+
     @staticmethod
     def compare_queries(user_query, expected_query):
         """
@@ -178,5 +220,26 @@ class QueryHintGenerator:
         for keyword, hint in expected_keywords.items():
             if keyword.lower() not in query_lower:
                 return hint
-        
+
+        return "Check your query syntax and conditions."
+
+    @staticmethod
+    def generate_hint_from_rules(user_query, rules):
+        """
+        Generate a hint using regular expressions instead of fixed keywords.
+
+        Useful when students can choose their own names, e.g. table aliases.
+
+        Args:
+            user_query (str): User's SQL query
+            rules (list): (pattern, hint) pairs, checked in order. The hint for
+                          the first pattern NOT found in the query is returned.
+
+        Returns:
+            str: Helpful hint message
+        """
+        for pattern, hint in rules:
+            if not re.search(pattern, user_query, flags=re.IGNORECASE):
+                return hint
+
         return "Check your query syntax and conditions."

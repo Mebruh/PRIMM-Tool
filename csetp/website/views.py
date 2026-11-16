@@ -6,12 +6,17 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import CustomQuestionSet
+from django.http import Http404
+from django.urls import reverse
 
-from .models import Employee, Project
+from .models import (
+    CustomQuestionSet, Employee, Project,
+    SECTION_CHOICES, SECTION_CUSTOM, SECTION_CS209,
+)
 from .validators import SQLValidator, QueryComparator, QueryHintGenerator
 from .executor import QueryExecutor
-from .query_configs import QUERY_CONFIGS
+from .query_configs import QUERY_CONFIGS, BUILTIN_QUESTION_SETS
+from .database_registry import DATABASES, DEFAULT_DATABASE, get_database, table_names
 
 
 def home(request):
@@ -23,9 +28,10 @@ def primm(request):
 
 
 def all_questions(request):
-    custom_sets = CustomQuestionSet.objects.all()
+    question_sets = CustomQuestionSet.objects.all()
     return render(request, "all-questions.html", {
-        'custom_sets': custom_sets
+        'cs209_sets': question_sets.filter(section=SECTION_CS209),
+        'custom_sets': question_sets.filter(section=SECTION_CUSTOM),
     })
 
 
@@ -41,13 +47,77 @@ def primm3(request):
     return render(request, "primm3.html")
 
 
+def cs209_set_1(request):
+    question_set = BUILTIN_QUESTION_SETS['cs209-1']
+    return _render_question_set_page(
+        request,
+        question_set,
+        api_base='/api/question-set/cs209-1/',
+        next_set=_next_in_section(question_set.section, reverse(question_set.url_name)),
+    )
+
+
+# ============================================================================
+# Database Views
+# ============================================================================
+
+def databases(request):
+    """Let the user choose which database to view."""
+    return render(request, "databases.html", {
+        'databases': DATABASES.values(),
+    })
+
+
 def database_view(request):
+    """Show the Company database (employees and projects)."""
     employees = Employee.objects.all()
     projects = Project.objects.all()
-    return render(request, "database.html", {
+    return render(request, "database_company.html", {
+        'database': get_database('company'),
         'employees': employees,
         'projects': projects
     })
+
+
+def database_store(request):
+    """Show the schema and every table of the Store database."""
+    database = get_database('store')
+    tables = []
+
+    with QueryExecutor.get_cursor() as cursor:
+        for table in database['tables']:
+            # Table names come from the registry, never from the user
+            cursor.execute(f'SELECT * FROM {table["name"]}')
+            columns = [col[0] for col in cursor.description]
+            rows = [
+                [_format_cell(value) for value in row]
+                for row in cursor.fetchall()
+            ]
+            tables.append({
+                **table,
+                'columns': [
+                    {'name': name, 'is_key': name in table.get('primary_key', [])}
+                    for name in columns
+                ],
+                'rows': rows,
+            })
+
+    return render(request, "database_store.html", {
+        'database': database,
+        'tables': tables,
+    })
+
+
+def _format_cell(value):
+    """Format a value for display in a database table."""
+    if value is None:
+        return None
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    if hasattr(value, 'isoformat'):
+        # Show dates as students write them in queries, e.g. 2020-05-13
+        return value.isoformat()
+    return value
 
 
 # ============================================================================
@@ -410,78 +480,222 @@ def _execute_make_query_aggregate(request, config):
             "error": f"❌ Query Processing Error: {str(e)}",
             "correct": False
         }, status=500)
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            user_query = data.get("query", "").strip()
-
-            if not user_query:
-                return JsonResponse({"error": "❌ Query is empty. Please enter a valid SQL query.", "correct": False})
-
-            if any(word in user_query.upper() for word in ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER"]):
-                return JsonResponse({"error": "❌ Unsafe query detected. Only SELECT statements are allowed.", "correct": False})
 
 
-            corrected_query = (
-                user_query
-                .replace("employees", "website_employee")
-                .replace("projects", "website_project")
-                .replace("employee_email", "employee_id")  # Fix incorrect column references
-            )
+# ============================================================================
+# Question Set Pages (custom and built-in)
+# ============================================================================
 
-            with connection.cursor() as cursor:
-                try:
-                    cursor.execute(corrected_query)
-                    columns = [col[0] for col in cursor.description]
-                    user_result = [dict(zip(columns, row)) for row in cursor.fetchall()]
-                except Exception as e:
-                    return JsonResponse({"error": f"❌ SQL Execution Error: {str(e)}", "correct": False})
-
-            expected_result = list(
-                Employee.objects.filter(project__isnull=True)
-                .values("first_name", "last_name")
-            )
+# Shown when a student finishes the last question set in a section
+SECTION_END_MESSAGES = {
+    SECTION_CS209: 'Please remember to return to the survey.',
+}
+DEFAULT_END_MESSAGE = 'You have finished every question set in this section.'
 
 
+def _section_sequence(section):
+    """
+    Every question set in a section, in the order shown on All Questions:
+    built-in sets first, then created sets from oldest to newest.
 
-            def normalize_data(data):
-                return sorted(
-                    [{k: str(v).strip().lower() for k, v in d.items()} for d in data],
-                    key=lambda x: tuple(x.values())
-                )
+    Returns:
+        list: (url, name) pairs
+    """
+    sequence = [
+        (reverse(question_set.url_name), question_set.name)
+        for question_set in BUILTIN_QUESTION_SETS.values()
+        if question_set.section == section
+    ]
+    sequence += [
+        (reverse('custom-question-set', args=[question_set.pk]), question_set.name)
+        for question_set in CustomQuestionSet.objects.filter(section=section)
+    ]
+    return sequence
 
-            user_result_normalized = normalize_data(user_result)
-            expected_result_normalized = normalize_data(expected_result)
+
+def _next_in_section(section, current_url):
+    """Return (url, name) of the set after current_url in its section, or None if it is last."""
+    sequence = _section_sequence(section)
+    urls = [url for url, _ in sequence]
+    if current_url in urls:
+        position = urls.index(current_url)
+        if position + 1 < len(sequence):
+            return sequence[position + 1]
+    return None
 
 
-            is_correct = user_result_normalized == expected_result_normalized
+def _render_question_set_page(request, question_set, api_base, subtitle=None, next_set=None):
+    """
+    Render the shared PRIMM page used by custom and built-in question sets.
 
-            if not is_correct and "IS NULL" not in user_query.upper():
-                return JsonResponse({"error": "❌ Hint: Make sure you use `WHERE projects.employee_email IS NULL`.", "correct": False})
+    Args:
+        question_set: CustomQuestionSet or BuiltInQuestionSet
+        api_base: URL prefix for the run-predict/run-modify/run-make endpoints
+        subtitle: Text under the title (defaults to the set's intro, if any)
+        next_set: (url, name) of the next set in the section, or None if last
+    """
+    database = get_database(question_set.database)
+    tables = question_set.table_list
 
-            return JsonResponse({"result": user_result, "correct": is_correct})
+    if len(tables) == 1:
+        tables_phrase = f"the {tables[0]} table"
+    elif tables:
+        tables_phrase = "the " + ", ".join(tables[:-1]) + f" and {tables[-1]} tables"
+    else:
+        tables_phrase = "the tables"
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "❌ JSON Decode Error: Invalid request format.", "correct": False})
-        except Exception as e:
-            return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})
+    return render(request, "custom_question_set.html", {
+        'question_set': question_set,
+        'api_base': api_base,
+        'subtitle': subtitle or getattr(question_set, 'intro', ''),
+        'database': database,
+        'database_url': reverse(database['url_name']),
+        'tables_phrase': tables_phrase,
+        'success_message': getattr(question_set, 'success_message', ''),
+        'next_url': next_set[0] if next_set else None,
+        'next_name': next_set[1] if next_set else None,
+        'end_message': SECTION_END_MESSAGES.get(
+            getattr(question_set, 'section', None), DEFAULT_END_MESSAGE
+        ),
+    })
 
-    return JsonResponse({"error": "❌ Invalid request method.", "correct": False})
 
+def _get_builtin_set(slug):
+    question_set = BUILTIN_QUESTION_SETS.get(slug)
+    if question_set is None:
+        raise Http404("Question set not found")
+    return question_set
+
+
+def _read_user_query(request):
+    """Return (query, error_response). error_response is None if the query is usable."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return None, JsonResponse({"error": "❌ Invalid request format.", "correct": False}, status=400)
+
+    user_query = data.get("query", "").strip()
+    is_valid, error_message = SQLValidator(user_query).validate()
+    if not is_valid:
+        return None, JsonResponse({"error": error_message, "correct": False})
+
+    return user_query, None
+
+
+def _run_predict(predict_query):
+    """Execute a question set's predict query and return its results."""
+    success, result = QueryExecutor.execute_query(predict_query)
+    if success:
+        return JsonResponse({"result": result})
+    return JsonResponse({"error": result}, status=500)
+
+
+def _check_against_expected(request, expected_queries, include_result=True, hint_rules=None):
+    """
+    Run the student's query and check it against one or more expected queries.
+
+    The answer is correct if its rows match the rows of ANY expected query.
+
+    Args:
+        expected_queries: List of correct SQL queries
+        include_result: Whether to send the student's rows back for display
+        hint_rules: Optional (pattern, hint) pairs used when the answer is wrong
+    """
+    try:
+        user_query, error_response = _read_user_query(request)
+        if error_response:
+            return error_response
+
+        success, user_result = QueryExecutor.execute_query(user_query)
+        if not success:
+            return JsonResponse({"error": user_result, "correct": False})
+
+        is_correct = False
+        for expected_query in expected_queries:
+            success, expected_result = QueryExecutor.execute_query(expected_query)
+            if not success:
+                return JsonResponse({"error": f"❌ Expected query failed: {expected_result}", "correct": False})
+            if QueryComparator.results_match(user_result, expected_result):
+                is_correct = True
+                break
+
+        response = {"correct": is_correct}
+        if include_result:
+            response["result"] = user_result
+        if not is_correct and hint_rules:
+            response["hint"] = QueryHintGenerator.generate_hint_from_rules(user_query, hint_rules)
+
+        return JsonResponse(response)
+
+    except Exception as e:
+        return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False}, status=500)
+
+
+# ============================================================================
+# Built-in Question Set API Endpoints
+# ============================================================================
+
+@require_http_methods(["GET"])
+def builtin_question_run_predict(request, slug):
+    return _run_predict(_get_builtin_set(slug).predict_query)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def builtin_question_run_modify(request, slug):
+    question_set = _get_builtin_set(slug)
+    return _check_against_expected(request, question_set.modify_correct_queries)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def builtin_question_run_make(request, slug):
+    question_set = _get_builtin_set(slug)
+    return _check_against_expected(
+        request,
+        [question_set.make_correct_query],
+        include_result=False,
+        hint_rules=getattr(question_set, 'make_hint_rules', None),
+    )
+
+
+# ============================================================================
+# Custom Question Sets
+# ============================================================================
 
 def add_question_set(request):
     """Display form to create a custom question set."""
+    form_context = {
+        'databases': DATABASES.values(),
+        'default_database': DEFAULT_DATABASE,
+        'sections': SECTION_CHOICES,
+        'default_section': SECTION_CUSTOM,
+    }
+
     if request.method == "POST":
         try:
+            # Only accept known databases, and only tables from the chosen one
+            database = request.POST.get('database')
+            if database not in DATABASES:
+                database = DEFAULT_DATABASE
+            valid_tables = table_names(database)
+            tables = [t for t in request.POST.getlist('tables') if t in valid_tables]
+
+            # Only accept known sections
+            section = request.POST.get('section')
+            if section not in dict(SECTION_CHOICES):
+                section = SECTION_CUSTOM
+
             # Create new question set from form data
             question_set = CustomQuestionSet(
                 # Basic info
                 name=request.POST.get('name'),
                 created_by=request.user if request.user.is_authenticated else None,
                 
-                # Table selection
-                uses_employees=request.POST.get('uses_employees') == 'true',
-                uses_projects=request.POST.get('uses_projects') == 'true',
+                # Section, database and tables
+                section=section,
+                database=database,
+                tables=','.join(tables),
                 
                 # Predict and Run
                 predict_query=request.POST.get('predict_query'),
@@ -515,17 +729,22 @@ def add_question_set(request):
             
         except Exception as e:
             messages.error(request, f'Error creating question set: {str(e)}')
-            return render(request, "add_question_set.html")
+            return render(request, "add_question_set.html", form_context)
     
-    return render(request, "add_question_set.html")
+    return render(request, "add_question_set.html", form_context)
 
 
 def view_custom_question_set(request, pk):
     """Display a custom question set (similar to primm1/2/3)."""
     question_set = get_object_or_404(CustomQuestionSet, pk=pk)
-    return render(request, "custom_question_set.html", {
-        'question_set': question_set
-    })
+    return _render_question_set_page(
+        request,
+        question_set,
+        api_base=f'/api/custom-question/{question_set.pk}/',
+        subtitle=f'{question_set.get_section_display()} PRIMM question set.'
+                 if question_set.section == SECTION_CS209 else 'Custom PRIMM question set.',
+        next_set=_next_in_section(question_set.section, request.path),
+    )
 
 
 @login_required
@@ -544,113 +763,22 @@ def delete_question_set(request, pk):
 
 @require_http_methods(["GET"])
 def custom_question_run_predict(request, pk):
-    """
-    Execute the predict query for a custom question set.
-    Returns the query results.
-    """
-    try:
-        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
-        
-        # Execute the predict query
-        success, result = QueryExecutor.execute_query(question_set.predict_query)
-        
-        if success:
-            return JsonResponse({"result": result})
-        else:
-            return JsonResponse({"error": result}, status=500)
-    
-    except Exception as e:
-        return JsonResponse({"error": f"❌ Query Error: {str(e)}"}, status=500)
+    """Execute the predict query for a custom question set."""
+    question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+    return _run_predict(question_set.predict_query)
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def custom_question_run_modify(request, pk):
-    """
-    Execute and validate the user's modified query.
-    Compares user's query results with the expected correct query.
-    """
-    try:
-        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
-        
-        # Get user's query from request
-        data = json.loads(request.body)
-        user_query = data.get("query", "").strip()
-        
-        if not user_query:
-            return JsonResponse({"error": "❌ Query is empty. Please enter a valid SQL query.", "correct": False})
-        
-        # Validate the query
-        validator = SQLValidator(user_query)
-        is_valid, error_message = validator.validate()
-        
-        if not is_valid:
-            return JsonResponse({"error": error_message, "correct": False})
-        
-        # Execute user's query
-        success, user_result = QueryExecutor.execute_query(user_query)
-        if not success:
-            return JsonResponse({"error": f"❌ SQL Execution Error: {user_result}", "correct": False})
-        
-        # Execute expected query
-        success, expected_result = QueryExecutor.execute_query(question_set.modify_correct_query)
-        if not success:
-            return JsonResponse({"error": f"❌ Expected query failed: {expected_result}", "correct": False})
-        
-        # Compare results
-        is_correct = QueryComparator.compare_results(user_result, expected_result)
-        
-        return JsonResponse({
-            "result": user_result,
-            "correct": is_correct
-        })
-    
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "❌ JSON Decode Error: Invalid request format.", "correct": False})
-    except Exception as e:
-        return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})
+    """Check the student's modified query against the expected query."""
+    question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+    return _check_against_expected(request, [question_set.modify_correct_query])
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def custom_question_run_make(request, pk):
-    """
-    Execute and validate the user's make query.
-    Compares user's query results with the expected correct query.
-    """
-    try:
-        question_set = get_object_or_404(CustomQuestionSet, pk=pk)
-        
-        # Get user's query from request
-        data = json.loads(request.body)
-        user_query = data.get("query", "").strip()
-        
-        if not user_query:
-            return JsonResponse({"error": "❌ Query is empty. Please enter a valid SQL query.", "correct": False})
-        
-        # Validate the query
-        validator = SQLValidator(user_query)
-        is_valid, error_message = validator.validate()
-        
-        if not is_valid:
-            return JsonResponse({"error": error_message, "correct": False})
-        
-        # Execute user's query
-        success, user_result = QueryExecutor.execute_query(user_query)
-        if not success:
-            return JsonResponse({"error": f"❌ SQL Execution Error: {user_result}", "correct": False})
-        
-        # Execute expected query
-        success, expected_result = QueryExecutor.execute_query(question_set.make_correct_query)
-        if not success:
-            return JsonResponse({"error": f"❌ Expected query failed: {expected_result}", "correct": False})
-        
-        # Compare results
-        is_correct = QueryComparator.compare_results(user_result, expected_result)
-        
-        return JsonResponse({"correct": is_correct})
-    
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "❌ JSON Decode Error: Invalid request format.", "correct": False})
-    except Exception as e:
-        return JsonResponse({"error": f"❌ Query Processing Error: {str(e)}", "correct": False})
+    """Check the student's make query against the expected query."""
+    question_set = get_object_or_404(CustomQuestionSet, pk=pk)
+    return _check_against_expected(request, [question_set.make_correct_query], include_result=False)

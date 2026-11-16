@@ -7,11 +7,11 @@
     <div class="text-center mb-5">
         <h1 class="display-4">Create Your Own Question Set</h1>
         <p class="lead text-muted">
-            This page is for creating your own questions based on the available tables in the database.
+            This page is for creating your own questions based on the tables in one of the databases.
         </p>
         <p>
-            <a href="{% url 'database-view' %}" target="_blank" class="btn btn-outline-primary">
-                View Database Tables
+            <a href="{% url 'databases' %}" target="_blank" class="btn btn-outline-primary">
+                View Databases
             </a>
         </p>
     </div>
@@ -19,33 +19,66 @@
     <form method="POST" id="question-set-form" class="needs-validation" novalidate>
         {% csrf_token %}
 
-        <!-- Question Set Name -->
+        <!-- Question Set Name and Section -->
         <div class="section-container mb-4">
-            <h3>Question Set Name</h3>
+            <h3>Name and Section</h3>
             <div class="mb-3">
                 <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="name" name="name" required 
                        placeholder="e.g., Advanced JOIN Queries">
                 <div class="invalid-feedback">Please provide a name for your question set.</div>
             </div>
+
+            <div class="mb-3">
+                <label for="section" class="form-label">Section</label>
+                <select class="form-select" id="section" name="section">
+                    {% for value, label in sections %}
+                    <option value="{{ value }}" {% if value == default_section %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">Which section of the All Questions page your question set appears in.</div>
+            </div>
         </div>
 
-        <!-- Table Selection -->
+        <!-- Database and Table Selection -->
         <div class="section-container mb-4">
+            <h3>Choose a Database</h3>
+            <p class="text-muted">Your queries will run against this database.</p>
+            <div class="row g-3 mb-4">
+                {% for database in databases %}
+                <div class="col-md-6">
+                    <input type="radio" class="btn-check" name="database" id="database-{{ database.key }}"
+                           value="{{ database.key }}" autocomplete="off"
+                           {% if database.key == default_database %}checked{% endif %}>
+                    <label class="btn btn-outline-primary w-100 database-option" for="database-{{ database.key }}">
+                        <i class="bi {{ database.icon }} me-2"></i><strong>{{ database.name }}</strong>
+                        <small class="d-block mt-1">{{ database.description }}</small>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
             <h3>Select Tables Used</h3>
-            <p class="text-muted">Choose which database tables your questions will use.</p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="uses_employees" name="uses_employees" value="true" checked>
-                <label class="form-check-label" for="uses_employees">
-                    Employees Table
-                </label>
+            <p class="text-muted">Choose which tables in this database your questions will use.</p>
+            {% for database in databases %}
+            <div class="table-choices" data-database="{{ database.key }}"
+                 {% if database.key != default_database %}style="display:none;"{% endif %}>
+                {% for table in database.tables %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="table-{{ database.key }}-{{ table.name }}"
+                           name="tables" value="{{ table.name }}"
+                           {% if forloop.first %}checked{% endif %}
+                           {% if database.key != default_database %}disabled{% endif %}>
+                    <label class="form-check-label" for="table-{{ database.key }}-{{ table.name }}">
+                        <code>{{ table.name }}</code> <small class="text-muted">&ndash; {{ table.description }}</small>
+                    </label>
+                </div>
+                {% endfor %}
+                <a href="{% url database.url_name %}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                    View the {{ database.name }}
+                </a>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="uses_projects" name="uses_projects" value="true">
-                <label class="form-check-label" for="uses_projects">
-                    Projects Table
-                </label>
-            </div>
+            {% endfor %}
         </div>
 
         <!-- Predict and Run Section -->
@@ -161,6 +194,26 @@
 </div>
 
 <script>
+// Show only the table checkboxes for the chosen database. Hidden checkboxes
+// are disabled so they are not submitted with the form.
+(function() {
+    'use strict';
+    function showTablesFor(databaseKey) {
+        document.querySelectorAll('.table-choices').forEach(function(group) {
+            var active = group.dataset.database === databaseKey;
+            group.style.display = active ? '' : 'none';
+            group.querySelectorAll('input').forEach(function(input) {
+                input.disabled = !active;
+            });
+        });
+    }
+    document.querySelectorAll('input[name="database"]').forEach(function(radio) {
+        radio.addEventListener('change', function() { showTablesFor(radio.value); });
+    });
+    var checked = document.querySelector('input[name="database"]:checked');
+    if (checked) { showTablesFor(checked.value); }
+})();
+
 (function() {
     'use strict';
     var forms = document.querySelectorAll('.needs-validation');

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-3">View Databases</h1>
+    <p class="text-center text-muted mb-5">
+        Choose a database to see its tables and the data inside them.
+    </p>
+
+    <div class="row g-4 justify-content-center">
+        {% for database in databases %}
+        <div class="col-md-6 col-lg-5">
+            <a href="{% url database.url_name %}" class="section-container database-choice text-center">
+                <i class="bi {{ database.icon }} database-icon"></i>
+                <h2 class="border-0 mt-3 mb-2">{{ database.name }}</h2>
+                <p class="text-muted mb-3">{{ database.description }}</p>
+                <div class="mb-4">
+                    {% for table in database.tables %}
+                    <span class="table-chip">{{ table.name }}</span>
+                    {% endfor %}
+                </div>
+                <span class="btn btn-primary btn-lg w-100 mt-auto">View {{ database.short_name }} Database</span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
